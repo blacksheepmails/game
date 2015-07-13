@@ -79,13 +79,32 @@ function mouseDown(e) {
 	}
 }
 
-var toggleColor = function(color) {
+function toggleColor(color) {
     if (color === 'red') {
         return 'black';
     } else {
         return 'red';
     }
 };
+
+function initCheckers(ctx) {
+	var blackCheckerImg = new Image();
+	blackCheckerImg.src = "black_checker.png";
+	var redCheckerImg = new Image();
+	redCheckerImg.src = 'red_checker.png';
+
+	for (var i=2; i<=8; i+=2) {
+		game_pieces.push (new CheckersKingPiece(ctx, i-1, 1, redCheckerImg, 'red'));
+		game_pieces.push (new CheckersKingPiece(ctx, i, 2, redCheckerImg, 'red'));
+		game_pieces.push (new CheckersKingPiece(ctx, i-1, 3, redCheckerImg, 'red'));
+		game_pieces.push (new CheckersKingPiece(ctx, i, 6, blackCheckerImg, 'black'));
+		game_pieces.push (new CheckersKingPiece(ctx, i-1, 7, blackCheckerImg, 'black'));
+		game_pieces.push (new CheckersKingPiece(ctx, i, 8, blackCheckerImg, 'black'));
+	}
+
+	drawing(ctx).drawBoard();
+	redCheckerImg.onload = drawing(ctx).drawPieces.bind(this, game_pieces);
+}
 
 
 GamePiece = function(ctx, i, j, piece, color) {
@@ -154,27 +173,15 @@ var main = function(){
 	var ctx = canvas.getContext("2d");
 	ctx.font = '20px Arial';
 
-	var blackCheckerImg = new Image();
-	blackCheckerImg.src = "black_checker.png";
-	var redCheckerImg = new Image();
-	redCheckerImg.src = 'red_checker.png';
-
 	//var board = new Array(8);
 	//for (var i = 0; i < 8; i++) {
 	//	board[i] = new Array(8);
 	//}
 	
-	game_pieces.push (new CheckersKingPiece(ctx, 2, 2, blackCheckerImg, 'black'));
-	game_pieces.push (new CheckersKingPiece(ctx, 2, 4, blackCheckerImg, 'black'));
-	game_pieces.push (new CheckersKingPiece(ctx, 2, 5, redCheckerImg, 'red'));
-	game_pieces.push (new CheckersKingPiece(ctx, 2, 6, blackCheckerImg, 'black'));
-	game_pieces.push (new CheckersKingPiece(ctx, 2, 8, blackCheckerImg, 'black'));
-	game_pieces.push (new CheckersKingPiece(ctx, 2, 10, blackCheckerImg, 'black'));
+	initCheckers(ctx);
 
 	canvas.onmousedown = mouseDown;
-	drawing(ctx).drawBoard();
-
-	redCheckerImg.onload = drawing(ctx).drawPieces.bind(this, game_pieces);
+	
 	//setInterval(drawing(ctx).drawPieces.bind(this, game_pieces), 1000);
 };
 
