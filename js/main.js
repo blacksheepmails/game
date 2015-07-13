@@ -2,6 +2,7 @@
 var square_size = 240/8.0;
 var board_size = 300;
 var game_pieces = [];
+var activePiece = 'None';
 
 var offset = function (canvas) {
 	var x = 0;
@@ -56,16 +57,25 @@ function mouseDown(e) {
 	var canvas = document.getElementById('myCanvas');
 	var square = getSquare(e.pageX - offset(canvas).x, e.pageY - offset(canvas).y);
 	if (square != 'None') {
-		var game_piece = getGamePiece(square.i, square.j);
-		if (game_piece != 'None') {
-			console.log('clicked on a game piece!');
-			game_piece.isActive = true;
-			game_piece.draw();
+		console.log(activePiece);
+		if (activePiece == 'None') {
+			var game_piece = getGamePiece(square.i, square.j);
+			if (game_piece != 'None') {
+				game_piece.isActive = true;
+				activePiece = game_piece;
+				game_piece.draw();
+				console.log ('selected: ' + game_piece.toString());
+			}
 		} else {
-			console.log('clicked on a square thats not a game piece!');
+			if (activePiece.isValidMove(square.i, square.j)) {
+				activePiece.i = square.i;
+				activePiece.j = square.j;
+				activePiece.isActive = false;
+				drawing(activePiece.ctx).drawBoard();
+				drawing(activePiece.ctx).drawPieces(game_pieces);
+				activePiece = 'None';
+			}
 		}
-	} else {
-		console.log('watch where you click, bitch');
 	}
 }
 
@@ -77,27 +87,67 @@ var toggleColor = function(color) {
     }
 };
 
-var GamePiece = function(ctx, i, j, piece, color) {
+
+GamePiece = function(ctx, i, j, piece, color) {
 	this.ctx = ctx
 	this.i = i;
 	this.j = j;
 	this.piece = piece;
 	this.color = color;
-	this.isActive = false;
-
-	this.draw = function() {
-		if (this.isActive) {
-			ctx.lineWidth="5";
-			ctx.strokeStyle="yellow";
-			ctx.rect(this.i * square_size, this.j * square_size, square_size, square_size);
-			ctx.stroke();
-			ctx.drawImage(this.piece, this.i * square_size, this.j * square_size, square_size, square_size);
-		} else {
-			ctx.drawImage(this.piece, this.i * square_size, this.j * square_size, square_size, square_size);
-		}
-	};
 };
 
+CheckersKingPiece = function(ctx, i, j, piece, color) {
+	GamePiece.call(this, ctx, i, j, piece, color);
+	this.possibleMoves = function() {
+		var moves = [];
+		for (var i_dir = -1; i_dir <= 1; i_dir += 2) {
+			for (var j_dir = -1; j_dir <= 1; j_dir += 2) {
+				var piece = getGamePiece(i+i_dir,j+j_dir)
+				if (piece == 'None') {
+					moves.push({i: i+i_dir, j: j+j_dir});
+				} else if (piece.color != color) {
+					if (getGamePiece(i+2*i_dir, j+2*j_dir) == 'None') {
+						moves.push({i: i+2*i_dir, j: j+2*j_dir});
+					}
+				}
+			}
+		}
+		return moves;
+	}
+	this.isValidMove = function(i, j) {
+		validMoves = this.possibleMoves();
+		for (var c=0; c<validMoves.length; c++) {
+			if (validMoves[c].i == i && validMoves[c].j == j) {
+				console.log(i.toString() + ', ' + j.toString() + ' is a valid move');
+				return true;
+			}
+		}
+		return false;
+	}
+}
+
+GamePiece.prototype = {
+	isActive: false,
+	possibleMoves: function() {
+		return 'None';
+	},
+	isValidMove: function(i, j) {
+		console.log('invalid move');
+		return false;
+	},
+	draw : function() {
+		if (this.isActive) {
+			this.ctx.lineWidth="5";
+			this.ctx.strokeStyle="yellow";
+			this.ctx.strokeRect(this.i * square_size, this.j * square_size, square_size, square_size);
+			this.ctx.drawImage(this.piece, this.i * square_size, this.j * square_size, square_size, square_size);
+		} else {
+			this.ctx.drawImage(this.piece, this.i * square_size, this.j * square_size, square_size, square_size);
+		}
+	}
+}
+
+CheckersKingPiece.prototype = Object.create(GamePiece.prototype);
 
 var main = function(){
 	var canvas = document.getElementById("myCanvas");
@@ -109,15 +159,21 @@ var main = function(){
 	var redCheckerImg = new Image();
 	redCheckerImg.src = 'red_checker.png';
 
-	game_pieces.push (new GamePiece(ctx, 2, 2, blackCheckerImg, 'black'));
-	game_pieces.push (new GamePiece(ctx, 2, 4, blackCheckerImg, 'black'));
-	game_pieces.push (new GamePiece(ctx, 2, 5, redCheckerImg, 'red'));
-	game_pieces.push (new GamePiece(ctx, 2, 6, blackCheckerImg, 'black'));
-	game_pieces.push (new GamePiece(ctx, 2, 8, blackCheckerImg, 'black'));
-	game_pieces.push (new GamePiece(ctx, 2, 10, blackCheckerImg, 'black'));
+	//var board = new Array(8);
+	//for (var i = 0; i < 8; i++) {
+	//	board[i] = new Array(8);
+	//}
+	
+	game_pieces.push (new CheckersKingPiece(ctx, 2, 2, blackCheckerImg, 'black'));
+	game_pieces.push (new CheckersKingPiece(ctx, 2, 4, blackCheckerImg, 'black'));
+	game_pieces.push (new CheckersKingPiece(ctx, 2, 5, redCheckerImg, 'red'));
+	game_pieces.push (new CheckersKingPiece(ctx, 2, 6, blackCheckerImg, 'black'));
+	game_pieces.push (new CheckersKingPiece(ctx, 2, 8, blackCheckerImg, 'black'));
+	game_pieces.push (new CheckersKingPiece(ctx, 2, 10, blackCheckerImg, 'black'));
 
-	drawing(ctx).drawBoard();
 	canvas.onmousedown = mouseDown;
+	drawing(ctx).drawBoard();
+
 	redCheckerImg.onload = drawing(ctx).drawPieces.bind(this, game_pieces);
 	//setInterval(drawing(ctx).drawPieces.bind(this, game_pieces), 1000);
 };
