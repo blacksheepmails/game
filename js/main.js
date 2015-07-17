@@ -1,8 +1,11 @@
-
-var square_size = 240/8.0;
-var board_size = 300;
+var board_size = 400;
+var square_size = board_size/10;
 var game_pieces = [];
 var activePiece = 'None';
+var redCheckerKing = new Image();
+redCheckerKing.src = "red_checker_king.png";
+var blackCheckerKing = new Image();
+blackCheckerKing.src = 'black_checker_king.png';
 
 var offset = function (canvas) {
 	var x = 0;
@@ -171,7 +174,8 @@ CheckersPiece = function(ctx, i, j, piece, color) {
         return false;
     }
     this.kingMe = function(move) {
-        game_pieces.splice(game_pieces.indexOf(this), 1, new CheckersKingPiece(this.ctx, move.i, move.j, this.piece, this.color));
+	    var checkerImg = (this.color == 'black')? blackCheckerKing : redCheckerKing;
+        game_pieces.splice(game_pieces.indexOf(this), 1, new CheckersKingPiece(this.ctx, move.i, move.j, checkerImg, this.color));
     }
 }
 
