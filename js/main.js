@@ -129,7 +129,7 @@ function initCheckers(ctx) {
     };
 
     var BlackChecker = function(i, j){
-        return new CheckersPiece(ctx, i, j, redCheckerImg, 'red');
+        return new CheckersPiece(ctx, i, j, blackCheckerImg, 'black');
     };
 
     for (var i = 2; i <= 8; i += 2) {
