@@ -72,6 +72,7 @@ function mouseDown(e) {
 	        drawing(activePiece.ctx).drawPieces(game_pieces);
 	        activePiece = 'None';
         } else if (activePiece.isValidMove(square.i, square.j)) {
+            activePiece.getMove(square.i, square.j).sideEffect();
 			activePiece.i = square.i;
 			activePiece.j = square.j;
             activePiece.isActive = false;
@@ -117,6 +118,12 @@ GamePiece = function(ctx, i, j, piece, color) {
 	this.piece = piece;
 	this.color = color;
 };
+function capturePiece(piece) {
+    game_pieces.splice(game_pieces.indexOf(piece), 1);
+}
+function doNothing(){
+    return;
+}
 
 CheckersKingPiece = function(ctx, i, j, piece, color) {
 	GamePiece.call(this, ctx, i, j, piece, color);
@@ -126,10 +133,10 @@ CheckersKingPiece = function(ctx, i, j, piece, color) {
 			for (var j_dir = -1; j_dir <= 1; j_dir += 2) {
 				var piece = getGamePiece(this.i+i_dir, this.j+j_dir)
 				if (piece == 'None') {
-					moves.push({i: this.i+i_dir, j: this.j+j_dir});
+					moves.push({i: this.i+i_dir, j: this.j+j_dir, sideEffect: doNothing});
 				} else if (piece.color != color) {
 					if (getGamePiece(this.i+2*i_dir, this.j+2*j_dir) == 'None') {
-						moves.push({i: this.i+2*i_dir, j: this.j+2*j_dir});
+						moves.push({i: this.i+2*i_dir, j: this.j+2*j_dir, sideEffect: capturePiece.bind(this, piece)});
 					}
 				}
 			}
@@ -146,16 +153,30 @@ CheckersPiece = function(ctx, i, j, piece, color) {
 		for (var i_dir = -1; i_dir <= 1; i_dir += 2) {
 		    var piece = getGamePiece(this.i+i_dir, this.j+1*j_dir)
 			if (piece == 'None') {
-				moves.push({i: this.i+i_dir, j: this.j+1*j_dir});
+				moves.push({i: this.i+i_dir, j: this.j+1*j_dir, sideEffect: doNothing});
 			} else if (piece.color != color) {
 				if (getGamePiece(this.i+2*i_dir, this.j+2*j_dir) == 'None') {
-                    //game_pieces.splice(game_pieces.indexOf(piece), 1);
-					moves.push({i: this.i+2*i_dir, j: this.j+2*j_dir});
+					moves.push({i: this.i+2*i_dir, j: this.j+2*j_dir, sideEffect: capturePiece.bind(this, piece)});
 				}
 			}
 		}
+        for (var c = 0; c < moves.length; c++) {
+            if (this.isLastRow(moves[c].j)) {
+                moves[c].sideEffect = kingMe.bind(this, moves[c]);
+            }
+        }
 		return moves;
 	}
+    this.isLastRow = function(j) {
+        if (color == 'black' && j == 1 || color == 'red' && j == 8) {
+            return true;
+        }
+        return false;
+    }
+}
+
+function kingMe(move) {
+    game_pieces.splice(game_pieces.indexOf(this), 1, new CheckersKingPiece(this.ctx, move.i, move.j, this.piece, this.color));
 }
 
 GamePiece.prototype = {
@@ -164,7 +185,7 @@ GamePiece.prototype = {
 		return 'None';
 	},
 	isValidMove: function(i, j) {
-		validMoves = this.possibleMoves();
+		var validMoves = this.possibleMoves();
 		for (var c=0; c<validMoves.length; c++) {
 			if (validMoves[c].i == i && validMoves[c].j == j) {
 				console.log(i.toString() + ', ' + j.toString() + ' is a valid move');
@@ -173,6 +194,15 @@ GamePiece.prototype = {
 		}
 		return false;
 	},
+    getMove: function(i, j) {
+    //should save possible moves instead of clculating them each time. anyways make this better later.
+        var validMoves = this.possibleMoves();
+        for (var c=0; c<validMoves.length; c++) {
+			if (validMoves[c].i == i && validMoves[c].j == j) {
+				return validMoves[c];
+			}
+		}
+    },
 	draw : function() {
 		if (this.isActive) {
 			this.ctx.lineWidth="5";
