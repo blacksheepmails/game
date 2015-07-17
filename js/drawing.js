@@ -1,4 +1,4 @@
-var drawing = function(ctx){
+var Drawing = function(ctx){
 	var drawSquare = function(i, j, color) {
 	    ctx.fillStyle = color;
 	    ctx.fillRect(i * square_size, j * square_size, square_size, square_size);
