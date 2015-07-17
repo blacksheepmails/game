@@ -149,7 +149,7 @@ CheckersPiece = function(ctx, i, j, piece, color) {
 				moves.push({i: this.i+i_dir, j: this.j+1*j_dir});
 			} else if (piece.color != color) {
 				if (getGamePiece(this.i+2*i_dir, this.j+2*j_dir) == 'None') {
-                    //game_pieces.splice(game_pieces.indexOf(piece), 1);
+                    game_pieces.splice(game_pieces.indexOf(piece), 1);
 					moves.push({i: this.i+2*i_dir, j: this.j+2*j_dir});
 				}
 			}
