@@ -72,7 +72,7 @@ function mouseDown(e) {
 	        drawing(activePiece.ctx).drawPieces(game_pieces);
 	        activePiece = 'None';
         } else if (activePiece.isValidMove(square.i, square.j)) {
-            activePiece.getMove(square.i, square.j).sideEffect();
+            activePiece.getMove(square.i, square.j).sideEffects.map(function (x) {x();});
 			activePiece.i = square.i;
 			activePiece.j = square.j;
             activePiece.isActive = false;
@@ -121,9 +121,6 @@ GamePiece = function(ctx, i, j, piece, color) {
 function capturePiece(piece) {
     game_pieces.splice(game_pieces.indexOf(piece), 1);
 }
-function doNothing(){
-    return;
-}
 
 CheckersKingPiece = function(ctx, i, j, piece, color) {
 	GamePiece.call(this, ctx, i, j, piece, color);
@@ -133,10 +130,10 @@ CheckersKingPiece = function(ctx, i, j, piece, color) {
 			for (var j_dir = -1; j_dir <= 1; j_dir += 2) {
 				var piece = getGamePiece(this.i+i_dir, this.j+j_dir)
 				if (piece == 'None') {
-					moves.push({i: this.i+i_dir, j: this.j+j_dir, sideEffect: doNothing});
+					moves.push({i: this.i+i_dir, j: this.j+j_dir, sideEffects: []});
 				} else if (piece.color != color) {
 					if (getGamePiece(this.i+2*i_dir, this.j+2*j_dir) == 'None') {
-						moves.push({i: this.i+2*i_dir, j: this.j+2*j_dir, sideEffect: capturePiece.bind(this, piece)});
+						moves.push({i: this.i+2*i_dir, j: this.j+2*j_dir, sideEffects: [capturePiece.bind(this, piece)]});
 					}
 				}
 			}
@@ -153,16 +150,16 @@ CheckersPiece = function(ctx, i, j, piece, color) {
 		for (var i_dir = -1; i_dir <= 1; i_dir += 2) {
 		    var piece = getGamePiece(this.i+i_dir, this.j+1*j_dir)
 			if (piece == 'None') {
-				moves.push({i: this.i+i_dir, j: this.j+1*j_dir, sideEffect: doNothing});
+				moves.push({i: this.i+i_dir, j: this.j+1*j_dir, sideEffects: []});
 			} else if (piece.color != color) {
 				if (getGamePiece(this.i+2*i_dir, this.j+2*j_dir) == 'None') {
-					moves.push({i: this.i+2*i_dir, j: this.j+2*j_dir, sideEffect: capturePiece.bind(this, piece)});
+					moves.push({i: this.i+2*i_dir, j: this.j+2*j_dir, sideEffects: [capturePiece.bind(this, piece)]});
 				}
 			}
 		}
         for (var c = 0; c < moves.length; c++) {
             if (this.isLastRow(moves[c].j)) {
-                moves[c].sideEffect = kingMe.bind(this, moves[c]);
+                moves[c].sideEffects.push(this.kingMe.bind(this, moves[c]));
             }
         }
 		return moves;
@@ -173,10 +170,9 @@ CheckersPiece = function(ctx, i, j, piece, color) {
         }
         return false;
     }
-}
-
-function kingMe(move) {
-    game_pieces.splice(game_pieces.indexOf(this), 1, new CheckersKingPiece(this.ctx, move.i, move.j, this.piece, this.color));
+    this.kingMe = function(move) {
+        game_pieces.splice(game_pieces.indexOf(this), 1, new CheckersKingPiece(this.ctx, move.i, move.j, this.piece, this.color));
+    }
 }
 
 GamePiece.prototype = {
@@ -223,16 +219,9 @@ var main = function(){
 	var ctx = canvas.getContext("2d");
 	ctx.font = '20px Arial';
 
-	//var board = new Array(8);
-	//for (var i = 0; i < 8; i++) {
-	//	board[i] = new Array(8);
-	//}
-	
 	initCheckers(ctx);
 
 	canvas.onmousedown = mouseDown;
-	
-	//setInterval(drawing(ctx).drawPieces.bind(this, game_pieces), 1000);
 };
 
 main();
