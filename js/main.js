@@ -7,8 +7,9 @@ var drawing = Drawing(ctx);
 
 var board_size = 400;
 var square_size = board_size/10;
-var game_pieces = [];
+
 var activePiece = null;
+
 
 var redCheckerKing = new Image();
 redCheckerKing.src = "red_checker_king.png";
@@ -62,29 +63,28 @@ function getSquare(x, y) {
     }
 }
 
-function getGamePiece(i, j) {
+function getGamePiece(game_pieces, i, j) {
     for (var c = 0; c < game_pieces.length; c++) {
         if (game_pieces[c].i == i && game_pieces[c].j == j) {
             return game_pieces[c];
         }
     }
 
-    return null
+    return null;
 }
 
 
-
-function mouseDown(ctx, canvas, e) {
+function mouseDown(ctx, canvas, game_pieces, e) {
     var square = getSquare(e.pageX - offset(canvas).x, e.pageY - offset(canvas).y);
 
     if (square === null) {
         return;
     }
 
-    console.log(activePiece);
+    console.log(activePiece, game_pieces);
 
     if (activePiece == null) {
-        var game_piece = getGamePiece(square.i, square.j);
+        var game_piece = getGamePiece(game_pieces, square.i, square.j);
         
         if (game_piece != null) {
             game_piece.isActive = true;
@@ -124,12 +124,15 @@ function initCheckers(ctx) {
     var redCheckerImg = new Image();
     redCheckerImg.src = 'red_checker.png';
 
+    var game_pieces = [];
+    var PieceNamespace = Pieces(game_pieces);
+
     var RedChecker = function(i, j){
-        return new CheckersPiece(ctx, i, j, redCheckerImg, 'red');
+        return new PieceNamespace.CheckersPiece(ctx, i, j, redCheckerImg, 'red');
     };
 
     var BlackChecker = function(i, j){
-        return new CheckersPiece(ctx, i, j, blackCheckerImg, 'black');
+        return new PieceNamespace.CheckersPiece(ctx, i, j, blackCheckerImg, 'black');
     };
 
     for (var i = 2; i <= 8; i += 2) {
@@ -142,8 +145,12 @@ function initCheckers(ctx) {
         game_pieces.push(BlackChecker(i, 8));
     }
 
-    drawing.drawBoard();
     redCheckerImg.onload = drawing.drawPieces.bind(this, game_pieces);
+
+    return {
+        game_pieces: game_pieces,
+        Pieces: PieceNamespace
+    };
 }
 
 
@@ -155,141 +162,23 @@ GamePiece = function(ctx, i, j, piece, color) {
     this.color = color;
 };
 
-function capturePiece(piece) {
+function capturePiece(game_pieces, piece) {
     game_pieces.splice(game_pieces.indexOf(piece), 1);
 }
 
-CheckersKingPiece = function(ctx, i, j, piece, color) {
-    GamePiece.call(this, ctx, i, j, piece, color);
-    this.possibleMoves = function() {
-        var moves = [];
-
-        for (var i_dir = -1; i_dir <= 1; i_dir += 2) {
-            for (var j_dir = -1; j_dir <= 1; j_dir += 2) {
-
-                var piece = getGamePiece(this.i + i_dir, this.j + j_dir);
-                
-                if (piece == null) {
-                    moves.push({
-                        i: this.i + i_dir, 
-                        j: this.j + j_dir, 
-                        sideEffects: []
-                    });
-                } else if (piece.color != color) {
-                    if (getGamePiece(this.i + 2 * i_dir, this.j + 2 * j_dir) == null) {
-                        moves.push({
-                            i: this.i + 2 * i_dir, 
-                            j: this.j + 2 * j_dir, 
-                            sideEffects: [capturePiece.bind(this, piece)]
-                        });
-                    }
-                }
-            }
-        }
-        return moves;
-    }
-}
-
-CheckersPiece = function(ctx, i, j, piece, color) {
-    GamePiece.call(this, ctx, i, j, piece, color);
-
-    this.possibleMoves = function() {
-        var moves = [];
-        var j_dir = (color == 'black')? - 1: 1;
-
-        for (var i_dir = -1; i_dir <= 1; i_dir += 2) {
-            var piece = getGamePiece(this.i + i_dir, this.j + 1 * j_dir);
-
-            if (piece == null) {
-                moves.push({
-                    i: this.i + i_dir, 
-                    j: this.j + 1 * j_dir, 
-                    sideEffects: []
-                });
-            } else if (piece.color != color) {
-                if (getGamePiece(this.i + 2 * i_dir, this.j + 2 * j_dir) == null) {
-                    moves.push({
-                        i: this.i + 2 * i_dir, 
-                        j: this.j + 2 * j_dir, 
-                        sideEffects: [capturePiece.bind(this, piece)]
-                    });
-                }
-            }
-        }
-
-
-        for (var c = 0; c < moves.length; c++) {
-            if (this.isLastRow(moves[c].j)) {
-                moves[c].sideEffects.push(this.kingMe.bind(this, moves[c]));
-            }
-        }
-
-        return moves;
-    };
-
-    this.isLastRow = function(j) {
-        if (color == 'black' && j == 1 || color == 'red' && j == 8) {
-            return true;
-        }
-        return false;
-    };
-
-    this.kingMe = function(move) {
-        var checkerImg = (this.color == 'black') ? blackCheckerKing : redCheckerKing;
-        game_pieces.splice(game_pieces.indexOf(this), 1, new CheckersKingPiece(this.ctx, move.i, move.j, checkerImg, this.color));
-    };
-}
-
-GamePiece.prototype = {
-    isActive: false,
-    possibleMoves: function() {
-        return null;
-    },
-    isValidMove: function(i, j) {
-        var validMoves = this.possibleMoves();
-
-        for (var c = 0; c < validMoves.length; c++) {
-            if (validMoves[c].i == i && validMoves[c].j == j) {
-                console.log(i.toString() + ', ' + j.toString() + ' is a valid move');
-                return true;
-            }
-        }
-        return false;
-    },
-    getMove: function(i, j) {
-        //should save possible moves instead of clculating them each time. anyways make this better later.
-        var validMoves = this.possibleMoves();
-
-        for (var c = 0; c < validMoves.length; c++) {
-            if (validMoves[c].i == i && validMoves[c].j == j) {
-                return validMoves[c];
-            }
-        }
-    },
-    highlight: function(){
-        this.ctx.lineWidth = "5";
-        this.ctx.strokeStyle = "yellow";
-        this.ctx.strokeRect(this.i * square_size, this.j * square_size, square_size, square_size);
-    },
-    draw : function() {
-        if (this.isActive) {
-            this.highlight();
-        }
-
-        this.ctx.drawImage(this.piece, this.i * square_size, this.j * square_size, square_size, square_size);
-    }
-}
-
-CheckersKingPiece.prototype = Object.create(GamePiece.prototype);
-CheckersPiece.prototype = Object.create(GamePiece.prototype);
 
 var main = function(){
     
     ctx.font = '20px Arial';
 
-    initCheckers(ctx);
+    var options = initCheckers(ctx);
+    drawing.drawBoard();
 
-    canvas.onmousedown = mouseDown.bind(this, ctx, canvas);
+    var game_pieces = options.game_pieces;
+    var Pieces = options.Pieces;
+
+    console.log(options);
+    canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces);
 };
 
 main();
