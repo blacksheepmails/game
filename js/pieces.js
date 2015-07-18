@@ -1,4 +1,4 @@
-var Pieces = function(game_pieces){
+var PieceNamespace = function(game_pieces){
 
     CheckersKingPiece = function(ctx, i, j, piece, color) {
         GamePiece.call(this, ctx, i, j, piece, color);
@@ -22,7 +22,7 @@ var Pieces = function(game_pieces){
                             moves.push({
                                 i: this.i + 2 * i_dir, 
                                 j: this.j + 2 * j_dir, 
-                                sideEffects: [capturePiece.bind(this, game_pieces, piece)]
+                                sideEffects: [new Capture(piece)]
                             });
                         }
                     }
@@ -55,16 +55,18 @@ var Pieces = function(game_pieces){
                         moves.push({
                             i: this.i + 2 * i_dir, 
                             j: this.j + 2 * j_dir, 
-                            sideEffects: [capturePiece.bind(this, game_pieces, piece)]
+                            sideEffects: [new Capture(piece)]
                         });
                     }
                 }
             }
 
-
+            moves = moves.filter(function(a) {
+                return (a.i>=1 && a.i<=8 && a.j>=1 && a.j<=8 )? true: false;
+            });
             for (var c = 0; c < moves.length; c++) {
                 if (this.isLastRow(moves[c].j)) {
-                    moves[c].sideEffects.push(this.kingMe.bind(this, moves[c]));
+                    moves[c].sideEffects.push(new KingMe(this, moves[c]));
                 }
             }
 
@@ -77,12 +79,15 @@ var Pieces = function(game_pieces){
             }
             return false;
         };
-
-        this.kingMe = function(move) {
-            var checkerImg = (this.color == 'black') ? blackCheckerKing : redCheckerKing;
-            game_pieces.splice(game_pieces.indexOf(this), 1, new CheckersKingPiece(this.ctx, move.i, move.j, checkerImg, this.color));
-        };
     }
+
+    GamePiece = function(ctx, i, j, piece, color) {
+        this.ctx = ctx
+        this.i = i;
+        this.j = j;
+        this.piece = piece;
+        this.color = color;
+    };
 
     GamePiece.prototype = {
         isActive: false,
@@ -110,6 +115,7 @@ var Pieces = function(game_pieces){
                 }
             }
         },
+
         highlight: function(){
             this.ctx.lineWidth = "5";
             this.ctx.strokeStyle = "yellow";
@@ -127,8 +133,35 @@ var Pieces = function(game_pieces){
     CheckersKingPiece.prototype = Object.create(GamePiece.prototype);
     CheckersPiece.prototype = Object.create(GamePiece.prototype);
 
+    function SideEffect() {}
+
+    function Capture(piece) {
+        this.go = function() {
+            game_pieces.splice(game_pieces.indexOf(piece), 1);
+        }
+    }
+
+    function KingMe(piece, move) {
+        this.go = function() {
+            var checkerImg = (piece.color == 'black') ? blackCheckerKing : redCheckerKing;
+            game_pieces.splice(game_pieces.indexOf(piece), 1, new CheckersKingPiece(piece.ctx, move.i, move.j, checkerImg, piece.color));
+        }
+    }
+
+    SideEffect.prototype = {
+        go: function(){
+            return;
+        }
+    }
+    Capture.prototype = Object.create(SideEffect.prototype);
+    KingMe.prototype = Object.create(SideEffect.prototype);
+
     return {
         CheckersKingPiece: CheckersKingPiece,
-        CheckersPiece: CheckersPiece
+        CheckersPiece: CheckersPiece,
+        GamePiece: GamePiece,
+        Capture: Capture,
+        KingMe: KingMe,
+        SideEffect: SideEffect
     };
 };

@@ -1,23 +1,15 @@
-
-
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
+
+var redCheckerKing = new Image();
+redCheckerKing.src = "red_checker_king.png";
+var blackCheckerKing = new Image();
+blackCheckerKing.src = 'black_checker_king.png';
 
 var drawing = Drawing(ctx);
 
 var board_size = 400;
 var square_size = board_size/10;
-
-var activePiece = null;
-
-
-var redCheckerKing = new Image();
-redCheckerKing.src = "red_checker_king.png";
-
-var blackCheckerKing = new Image();
-blackCheckerKing.src = 'black_checker_king.png';
-
-
 
 var offset = function(canvas) {
     var x = 0;
@@ -36,7 +28,6 @@ var offset = function(canvas) {
         element = element.offsetParent;
     }
     
-
     x += stylePaddingLeft;
     y += stylePaddingTop;
     x += styleBorderLeft;
@@ -69,54 +60,17 @@ function getGamePiece(game_pieces, i, j) {
             return game_pieces[c];
         }
     }
-
     return null;
 }
 
 
-function mouseDown(ctx, canvas, game_pieces, e) {
+function mouseDown(ctx, canvas, game_pieces, checkersGame, e) {
     var square = getSquare(e.pageX - offset(canvas).x, e.pageY - offset(canvas).y);
 
-    if (square === null) {
-        return;
-    }
-
-    console.log(activePiece, game_pieces);
-
-    if (activePiece == null) {
-        var game_piece = getGamePiece(game_pieces, square.i, square.j);
-        
-        if (game_piece != null) {
-            game_piece.isActive = true;
-            activePiece = game_piece;
-            game_piece.draw();
-            console.log ('selected: ' + game_piece.toString());
-        }
-    } else {
-        var isValidMove = activePiece.isValidMove(square.i, square.j);
-
-        if (activePiece.i == square.i && activePiece.j == square.j || isValidMove){
-            if (isValidMove){
-                activePiece.getMove(square.i, square.j).sideEffects.map(function (x) {x();});
-                activePiece.i = square.i;
-                activePiece.j = square.j;
-            }
-
-            activePiece.isActive = false;
-            drawing.drawBoard();
-            drawing.drawPieces(game_pieces);
-            activePiece = null;   
-        } 
-    }
+    if (square != null) {
+        checkersGame.next(square);
+    }    
 }
-
-function toggleColor(color) {
-    if (color === 'red') {
-        return 'black';
-    } else {
-        return 'red';
-    }
-};
 
 function initCheckers(ctx) {
     var blackCheckerImg = new Image();
@@ -125,14 +79,13 @@ function initCheckers(ctx) {
     redCheckerImg.src = 'red_checker.png';
 
     var game_pieces = [];
-    var PieceNamespace = Pieces(game_pieces);
+    var pieceNamespace = PieceNamespace(game_pieces);
 
     var RedChecker = function(i, j){
-        return new PieceNamespace.CheckersPiece(ctx, i, j, redCheckerImg, 'red');
+        return new pieceNamespace.CheckersPiece(ctx, i, j, redCheckerImg, 'red');
     };
-
     var BlackChecker = function(i, j){
-        return new PieceNamespace.CheckersPiece(ctx, i, j, blackCheckerImg, 'black');
+        return new pieceNamespace.CheckersPiece(ctx, i, j, blackCheckerImg, 'black');
     };
 
     for (var i = 2; i <= 8; i += 2) {
@@ -149,21 +102,8 @@ function initCheckers(ctx) {
 
     return {
         game_pieces: game_pieces,
-        Pieces: PieceNamespace
+        pieceNamespace: pieceNamespace
     };
-}
-
-
-GamePiece = function(ctx, i, j, piece, color) {
-    this.ctx = ctx
-    this.i = i;
-    this.j = j;
-    this.piece = piece;
-    this.color = color;
-};
-
-function capturePiece(game_pieces, piece) {
-    game_pieces.splice(game_pieces.indexOf(piece), 1);
 }
 
 
@@ -175,10 +115,11 @@ var main = function(){
     drawing.drawBoard();
 
     var game_pieces = options.game_pieces;
-    var Pieces = options.Pieces;
+    var pieceNamespace = options.pieceNamespace;
 
-    console.log(options);
-    canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces);
+    var checkersGame = new NormalCheckersStateMachine(game_pieces, pieceNamespace);
+
+    canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces, checkersGame);
 };
 
 main();

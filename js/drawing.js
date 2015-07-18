@@ -23,6 +23,10 @@ var Drawing = function(ctx){
 		 	ctx.fillText(j.toString(), board_size-20, (j+1) * square_size);
 		}
 	};
+    
+    var toggleColor = function(color) {
+        return (color === 'red')? 'black' : 'red';
+    };
 
 	var drawPieces = function(pieces) {
 		for (var i = 0; i < pieces.length; i++) {
