@@ -72,7 +72,30 @@ function mouseDown(ctx, canvas, game_pieces, checkersGame, e) {
     }    
 }
 
-function initCheckers(ctx) {
+var setupSimpleCheckersPieces = function(game_pieces, Red, Black){
+    game_pieces.push(Red(3, 3));
+    game_pieces.push(Red(6, 3));
+
+    game_pieces.push(Black(6, 6));
+
+    return game_pieces;
+};
+
+var setupCheckersPieces = function(game_pieces, Red, Black){
+    for (var i = 2; i <= 8; i += 2) {
+        game_pieces.push(Red(i - 1, 1));
+        game_pieces.push(Red(i, 2));
+        game_pieces.push(Red(i - 1, 3));
+
+        game_pieces.push(Black(i, 6));
+        game_pieces.push(Black(i - 1, 7));
+        game_pieces.push(Black(i, 8));
+    }
+
+    return game_pieces;
+};
+
+function initCheckers(ctx, simple) {
     var blackCheckerImg = new Image();
     blackCheckerImg.src = "black_checker.png";
     var redCheckerImg = new Image();
@@ -88,14 +111,11 @@ function initCheckers(ctx) {
         return new pieceNamespace.CheckersPiece(ctx, i, j, blackCheckerImg, 'black');
     };
 
-    for (var i = 2; i <= 8; i += 2) {
-        game_pieces.push(RedChecker(i - 1, 1));
-        game_pieces.push(RedChecker(i, 2));
-        game_pieces.push(RedChecker(i - 1, 3));
-
-        game_pieces.push(BlackChecker(i, 6));
-        game_pieces.push(BlackChecker(i - 1, 7));
-        game_pieces.push(BlackChecker(i, 8));
+    
+    if (typeof simple === "undefined" || simple === null || !simple){
+        setupCheckersPieces(game_pieces, RedChecker, BlackChecker);
+    } else {
+        setupSimpleCheckersPieces(game_pieces, RedChecker, BlackChecker);
     }
 
     redCheckerImg.onload = drawing.drawPieces.bind(this, game_pieces);
@@ -111,7 +131,7 @@ var main = function(){
     
     ctx.font = '20px Arial';
 
-    var options = initCheckers(ctx);
+    var options = initCheckers(ctx, true);
     drawing.drawBoard();
 
     var game_pieces = options.game_pieces;
