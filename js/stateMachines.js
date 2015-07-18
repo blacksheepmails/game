@@ -26,10 +26,12 @@ function WeirdCheckersStateMachine(game_pieces, piecesNamespace) {
             if (this.shouldActivate(game_piece)) this.activate(game_piece);
             return;
         }
+
         if (this.activePiece.i == square.i && this.activePiece.j == square.j) {
             this.deactivate();
             return;
         }
+
         var isValidMove;
         if (this.forcedPiece === this.activePiece) {
             isJump = this.isValidJump(this.activePiece, square.i, square.j);
@@ -38,6 +40,7 @@ function WeirdCheckersStateMachine(game_pieces, piecesNamespace) {
             isValidMove = this.activePiece.isValidMove(square.i, square.j);
             isJump = this.isValidJump(this.activePiece, square.i, square.j);
         }
+
         if (isValidMove){
             this.activePiece.getMove(square.i, square.j).sideEffects.map(function(x) {x.go();});
             this.activePiece.i = square.i;
@@ -67,12 +70,14 @@ function NormalCheckersStateMachine(game_pieces, piecesNamespace) {
         if (game_piece == null) return false;
         if (this.isTurnStrict(game_piece.color)) {
             var canJump = false;
-            var myPieces = game_pieces.filter(function(a) {return (a.color == game_piece.color)? true: false;});
+            var myPieces = game_pieces.filter(function(a) {return a.color === game_piece.color;});
+
             for (var c = 0; c < myPieces.length; c++) {
                 if (this.hasMoreJumps(myPieces[c])) canJump = true;
             }
+
             if (canJump) {
-                return (this.hasMoreJumps(game_piece))? true: false;
+                return this.hasMoreJumps(game_piece);
             } else {
                 return true;
             }
@@ -87,12 +92,15 @@ function NormalCheckersStateMachine(game_pieces, piecesNamespace) {
             if (this.shouldActivate(game_piece)) this.activate(game_piece);
             return;
         }
+
         if (this.activePiece.i == square.i && this.activePiece.j == square.j && this.forcedPiece == null) {
             this.deactivate();
             return;
         }
+
         var isJump = false;
         var isValidMove = false;
+
         if (this.hasMoreJumps(this.activePiece)) {
             if (this.isValidJump(this.activePiece, square.i, square.j)) {
                 isJump = true;
@@ -139,11 +147,11 @@ CheckersStateMachine.prototype = {
     },
 
     isTurn: function(color) {
-        return (this.whoseTurn === color || this.whoseTurn === 'both')? true: false;
+        return (this.whoseTurn === color || this.whoseTurn === 'both');
     },
 
     isTurnStrict: function(color) {
-        return (this.whoseTurn === color)? true: false;
+        return this.whoseTurn === color;
     },
 
     isGameOver: function() {
@@ -170,6 +178,7 @@ CheckersStateMachine.prototype = {
                 }
             } 
         }
+        
         return false;
     },
 
@@ -185,6 +194,8 @@ CheckersStateMachine.prototype = {
                 }
             } 
         }
+
+        return false;
     },
 
     toggleTurn: function(color) {
@@ -195,9 +206,7 @@ CheckersStateMachine.prototype = {
         }
     },
     shouldActivate: function(game_piece) {
-        if (game_piece == null) return false;
-        if (this.isTurnStrict(game_piece.color)) return true;
-        return false;
+        return !(game_piece == null || !this.isTurnStrict(game_piece.color));
     },
     next: function(square) {
         if (this.activePiece == null) {
@@ -205,6 +214,7 @@ CheckersStateMachine.prototype = {
             if (this.shouldActivate(game_piece)) this.activate(game_piece);
             return;
         }
+
         if (this.activePiece.i == square.i && this.activePiece.j == square.j) {
             this.deactivate();
             return;
