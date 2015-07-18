@@ -20,6 +20,7 @@ function WeirdCheckersStateMachine (game_pieces, piecesNamespace) {
     }
 
     this.next = function(square) {
+
         if (this.activePiece == null) {
             var game_piece = getGamePiece(this.game_pieces, square.i, square.j);
             if (this.shouldActivate(game_piece)) this.activate(game_piece);
@@ -76,6 +77,7 @@ function NormalCheckersStateMachine (game_pieces, piecesNamespace) {
     }
 
     this.next = function(square) {
+
         if (this.activePiece == null) {
             var game_piece = getGamePiece(this.game_pieces, square.i, square.j);
             if (this.shouldActivate(game_piece)) this.activate(game_piece);
@@ -110,6 +112,10 @@ function NormalCheckersStateMachine (game_pieces, piecesNamespace) {
                 this.deactivate();
             }
         } 
+        
+        if (this.isGameOver()){
+            console.log("Game over!");
+        }
     }
 }
 
@@ -137,9 +143,17 @@ CheckersStateMachine.prototype = {
     },
 
     isGameOver: function() {
-        return this.game_pieces.map(function(a) {a.color;}).reduce(function (a, b) {
-            return (a === b)? a: false;
-        });
+        if (this.game_pieces.length < 2) { return true; }
+
+        var colour = this.game_pieces[0].color;
+
+        for (var i = 0; i < this.game_pieces.length; i++){
+            if (this.game_pieces[i].color !== colour){ 
+                return false;
+            }
+        }
+
+        return true;
     },
 
     hasMoreJumps: function(piece) {
