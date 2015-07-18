@@ -137,7 +137,7 @@ var main = function(){
     var game_pieces = options.game_pieces;
     var pieceNamespace = options.pieceNamespace;
 
-    var checkersGame = new NormalCheckersStateMachine(game_pieces, pieceNamespace);
+    var checkersGame = new WeirdCheckersStateMachine(game_pieces, pieceNamespace);
 
     canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces, checkersGame);
 };

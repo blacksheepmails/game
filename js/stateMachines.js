@@ -1,5 +1,5 @@
 
-function CheckersStateMachine (game_pieces, pieceNamespace) {
+function CheckersStateMachine(game_pieces, pieceNamespace) {
     this.game_pieces = game_pieces;
     this.pieceNamespace = pieceNamespace
     this.whoseTurn = 'red';
@@ -8,7 +8,7 @@ function CheckersStateMachine (game_pieces, pieceNamespace) {
     this.lastMove = null;
 }
 
-function WeirdCheckersStateMachine (game_pieces, piecesNamespace) {
+function WeirdCheckersStateMachine(game_pieces, piecesNamespace) {
     CheckersStateMachine.call(this,game_pieces, piecesNamespace);
 
     this.shouldActivate = function(game_piece) {
@@ -53,10 +53,14 @@ function WeirdCheckersStateMachine (game_pieces, piecesNamespace) {
                 this.deactivate();
             }
         } 
+
+        if (this.isGameOver()){
+            console.log("Game over!");
+        }
     }
 }
 
-function NormalCheckersStateMachine (game_pieces, piecesNamespace) {
+function NormalCheckersStateMachine(game_pieces, piecesNamespace) {
     CheckersStateMachine.call(this, game_pieces, piecesNamespace);
 
     this.shouldActivate = function(game_piece) {
@@ -214,6 +218,10 @@ CheckersStateMachine.prototype = {
             this.whoseTurn = this.toggleTurn(this.whoseTurn);
             this.deactivate();
         } 
+
+        if (this.isGameOver()){
+            console.log("Game over!");
+        }
     }
 }
 
