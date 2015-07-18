@@ -28,6 +28,11 @@ var PieceNamespace = function(game_pieces){
                     }
                 }
             }
+
+            moves = moves.filter(function(a) {
+                return (a.i>=1 && a.i<=8 && a.j>=1 && a.j<=8 )? true: false;
+            });
+            
             return moves;
         }
     }
