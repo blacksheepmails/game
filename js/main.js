@@ -2,39 +2,39 @@ var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 
 var redCheckerKing = new Image();
-redCheckerKing.src = "red_checker_king.png";
+redCheckerKing.src = "img/checkers/red_checker_king.png";
 var blackCheckerKing = new Image();
-blackCheckerKing.src = 'black_checker_king.png';
+blackCheckerKing.src = 'img/checkers/black_checker_king.png';
 
-    var blackPawn = new Image();
-    blackPawn.src = "black_pawn.png";
-    var whitePawn = new Image();
-    whitePawn.src = 'white_pawn.png';
+var blackPawn = new Image();
+blackPawn.src = "img/chess/black_pawn.png";
+var whitePawn = new Image();
+whitePawn.src = 'img/chess/white_pawn.png';
 
-    var blackKnight = new Image();
-    blackKnight.src = "black_knight.png";
-    var whiteKnight = new Image();
-    whiteKnight.src = 'white_knight.png';
+var blackKnight = new Image();
+blackKnight.src = "img/chess/black_knight.png";
+var whiteKnight = new Image();
+whiteKnight.src = 'img/chess/white_knight.png';
 
-    var blackBishop = new Image();
-    blackBishop.src = "black_bishop.png";
-    var whiteBishop = new Image();
-    whiteBishop.src = 'white_bishop.png';
+var blackBishop = new Image();
+blackBishop.src = "img/chess/black_bishop.png";
+var whiteBishop = new Image();
+whiteBishop.src = 'img/chess/white_bishop.png';
 
-    var blackRook = new Image();
-    blackRook.src = "black_rook.png";
-    var whiteRook = new Image();
-    whiteRook.src = 'white_rook.png';
+var blackRook = new Image();
+blackRook.src = "img/chess/black_rook.png";
+var whiteRook = new Image();
+whiteRook.src = 'img/chess/white_rook.png';
 
-    var blackKing = new Image();
-    blackKing.src = "black_king.png";
-    var whiteKing = new Image();
-    whiteKing.src = 'white_king.png';
+var blackKing = new Image();
+blackKing.src = "img/chess/black_king.png";
+var whiteKing = new Image();
+whiteKing.src = 'img/chess/white_king.png';
 
-    var blackQueen = new Image();
-    blackQueen.src = "black_queen.png";
-    var whiteQueen = new Image();
-    whiteQueen.src = 'white_queen.png';
+var blackQueen = new Image();
+blackQueen.src = "img/chess/black_queen.png";
+var whiteQueen = new Image();
+whiteQueen.src = 'img/chess/white_queen.png';
     
 
 
@@ -129,9 +129,9 @@ var setupCheckersPieces = function(game_pieces, Red, Black){
 
 function initCheckers(ctx, simple) {
     var blackCheckerImg = new Image();
-    blackCheckerImg.src = "black_checker.png";
+    blackCheckerImg.src = "img/checkers/black_checker.png";
     var redCheckerImg = new Image();
-    redCheckerImg.src = 'red_checker.png';
+    redCheckerImg.src = 'img/checkers/red_checker.png';
 
     var game_pieces = [];
     var pieceNamespace = PieceNamespace(game_pieces);
@@ -178,10 +178,10 @@ function initChess(ctx) {
         game_pieces.push(new pieceNamespace.ChessBishop(ctx, i, 1, whiteBishop, 'red'));
         game_pieces.push(new pieceNamespace.ChessBishop(ctx, i, 8, blackBishop, 'black'));
     }
-    game_pieces.push(new pieceNamespace.ChessQueen(ctx, 4, 1, whiteQueen, 'red'));
+    game_pieces.push(new pieceNamespace.ChessQueen(ctx, 5, 1, whiteQueen, 'red'));
     game_pieces.push(new pieceNamespace.ChessQueen(ctx, 5, 8, blackQueen, 'black'));
 
-    game_pieces.push(new pieceNamespace.ChessKing(ctx, 5, 1, whiteKing, 'red'));
+    game_pieces.push(new pieceNamespace.ChessKing(ctx, 4, 1, whiteKing, 'red'));
     game_pieces.push(new pieceNamespace.ChessKing(ctx, 4, 8, blackKing, 'black'));
 
 
