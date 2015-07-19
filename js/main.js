@@ -40,8 +40,8 @@ whiteQueen.src = 'img/chess/white_queen.png';
 
 var drawing = Drawing(ctx);
 
-var board_size = 400;
-var square_size = board_size/10;
+var board_size = canvas.width;
+var square_size = board_size / 10;
 
 var offset = function(canvas) {
     var x = 0;
