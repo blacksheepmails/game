@@ -1,7 +1,7 @@
 var PieceNamespace = function(game_pieces){
 
-    CheckersKingPiece = function(ctx, i, j, piece, color) {
-        GamePiece.call(this, ctx, i, j, piece, color);
+    CheckersKingPiece = function(ctx, i, j, img, player) {
+        GamePiece.call(this, ctx, i, j, img, player);
         this.possibleMoves = function() {
             var getPiece = getGamePiece.bind(this, game_pieces);
             var moves = [];
@@ -17,7 +17,7 @@ var PieceNamespace = function(game_pieces){
                             j: this.j + j_dir, 
                             sideEffects: []
                         });
-                    } else if (piece.color != color) {
+                    } else if (piece.player != this.player) {
                         if (getPiece(this.i + 2 * i_dir, this.j + 2 * j_dir) == null) {
                             moves.push({
                                 i: this.i + 2 * i_dir, 
@@ -34,14 +34,14 @@ var PieceNamespace = function(game_pieces){
         }
     }
 
-    CheckersPiece = function(ctx, i, j, piece, color) {
-        GamePiece.call(this, ctx, i, j, piece, color);
+    CheckersPiece = function(ctx, i, j, img, player) {
+        GamePiece.call(this, ctx, i, j, img, player);
 
         this.possibleMoves = function() {
             var getPiece = getGamePiece.bind(this, game_pieces);
 
             var moves = [];
-            var j_dir = (color == 'black')? -1: 1;
+            var j_dir = (this.color == 'black')? -1: 1;
 
             for (var i_dir = -1; i_dir <= 1; i_dir += 2) {
                 var piece = getPiece(this.i + i_dir, this.j + 1 * j_dir);
@@ -52,7 +52,7 @@ var PieceNamespace = function(game_pieces){
                         j: this.j + 1 * j_dir, 
                         sideEffects: []
                     });
-                } else if (piece.color != color) {
+                } else if (piece.player != this.player) {
                     if (getPiece(this.i + 2 * i_dir, this.j + 2 * j_dir) == null) {
                         moves.push({
                             i: this.i + 2 * i_dir, 
@@ -74,13 +74,13 @@ var PieceNamespace = function(game_pieces){
         };
     }
 
-    ChessPawn = function(ctx, i, j, piece, color) {
-        GamePiece.call(this, ctx, i, j, piece, color);
+    ChessPawn = function(ctx, i, j, img, player) {
+        GamePiece.call(this, ctx, i, j, img, player);
 
         this.possibleMoves = function() {
             var getPiece = getGamePiece.bind(this, game_pieces);
             var moves = [];
-            var j_dir = (color == 'black')? -1: 1;
+            var j_dir = (this.color == 'black')? -1: 1;
 
             var piece = getPiece(this.i, this.j + j_dir);
             if (piece == null) {
@@ -89,7 +89,7 @@ var PieceNamespace = function(game_pieces){
                     j: this.j + 1 * j_dir, 
                     sideEffects: []
                 });
-                if (this.j == 2 && this.color == 'red' || this.j == 7 && this.color == 'black') {
+                if (this.j == 2 && this.color == 'white' || this.j == 7 && this.color == 'black') {
                     piece = getPiece(this.i, this.j + 2*j_dir);
                     if (piece == null) {
                         moves.push({
@@ -103,7 +103,7 @@ var PieceNamespace = function(game_pieces){
 
             for (var i_dir = -1; i_dir <= 1; i_dir+=2) {
                 piece = getPiece(this.i + i_dir, this.j + j_dir);
-                if (piece != null && piece.color != this.color) {
+                if (piece != null && piece.player != this.player) {
                     moves.push({
                         i: this.i + i_dir,
                         j: this.j + 1 * j_dir,
@@ -122,8 +122,8 @@ var PieceNamespace = function(game_pieces){
         }
     }
 
-    ChessRook = function(ctx, i, j, piece, color) {
-        GamePiece.call(this, ctx, i, j, piece, color);
+    ChessRook = function(ctx, i, j, img, player) {
+        GamePiece.call(this, ctx, i, j, img, player);
 
         this.possibleMoves = function() {
             var moves = [];
@@ -139,8 +139,8 @@ var PieceNamespace = function(game_pieces){
         }
     }
 
-    ChessKnight = function(ctx, i, j, piece, color) {
-        GamePiece.call(this, ctx, i, j, piece, color);
+    ChessKnight = function(ctx, i, j, img, player) {
+        GamePiece.call(this, ctx, i, j, img, player);
 
         this.possibleMoves = function() {
             var getPiece = getGamePiece.bind(this, game_pieces);
@@ -162,7 +162,7 @@ var PieceNamespace = function(game_pieces){
                         j: this.j + jump.j,
                         sideEffects: []
                     });
-                } else if (piece.color != this.color) {
+                } else if (piece.player != this.player) {
                     moves.push({
                         i: this.i + jump.i,
                         j: this.j + jump.j,
@@ -175,8 +175,8 @@ var PieceNamespace = function(game_pieces){
         }
     }
 
-    ChessBishop = function(ctx, i, j, piece, color) {
-        GamePiece.call(this, ctx, i, j, piece, color);
+    ChessBishop = function(ctx, i, j, img, player) {
+        GamePiece.call(this, ctx, i, j, img, player);
 
         this.possibleMoves = function() {
             var moves = [];
@@ -192,8 +192,8 @@ var PieceNamespace = function(game_pieces){
         }
     }
 
-    ChessQueen = function(ctx, i, j, piece, color) {
-        GamePiece.call(this, ctx, i, j, piece, color);
+    ChessQueen = function(ctx, i, j, img, player) {
+        GamePiece.call(this, ctx, i, j, img, player);
 
         this.possibleMoves = function() {
             var moves = [];
@@ -213,8 +213,8 @@ var PieceNamespace = function(game_pieces){
         }
     }
     
-    ChessKing = function(ctx, i, j, piece, color) {
-        GamePiece.call(this, ctx, i, j, piece, color);
+    ChessKing = function(ctx, i, j, img, player) {
+        GamePiece.call(this, ctx, i, j, img, player);
 
         this.possibleMoves = function() {
             var getPiece = getGamePiece.bind(this, game_pieces);
@@ -228,7 +228,7 @@ var PieceNamespace = function(game_pieces){
                             j: this.j + j_dir,
                             sideEffects: []
                         });
-                    } else if (piece.color != this.color) {
+                    } else if (piece.player != this.player) {
                         moves.push({
                             i: this.i + i_dir,
                             j: this.j + j_dir,
@@ -242,18 +242,43 @@ var PieceNamespace = function(game_pieces){
         }
     }
     
-    GamePiece = function(ctx, i, j, piece, color) {
+    GamePiece = function(ctx, i, j, img, player) {
         this.ctx = ctx
         this.i = i;
         this.j = j;
-        this.piece = piece;
-        this.color = color;
+        this.img = img;
+        this.player = player
+        this.color = player.color;
     };
 
     GamePiece.prototype = {
         isActive: false,
         possibleMoves: function() {
             return null;
+        },
+        hasMoreJumps: function() {
+            var moves = this.possibleMoves();
+            for (var c = 0; c < moves.length; c++) {
+                for (var d = 0; d < moves[c].sideEffects.length; d ++) {
+                    if (moves[c].sideEffects[d] instanceof Capture) {
+                        return true;
+                    }
+                } 
+            }
+            return false;
+        },
+        isValidJump : function(i, j) {
+            var moves = this.possibleMoves();
+            for (var c = 0; c < moves.length; c++) {
+                if (moves[c].i == i && moves[c].j == j) {
+                    for (var d = 0; d < moves[c].sideEffects.length; d ++) {
+                        if (moves[c].sideEffects[d] instanceof Capture) {
+                            return true;
+                        }
+                    }
+                } 
+            }
+            return false;
         },
         isValidMove: function(i, j) {
             var validMoves = this.possibleMoves();
@@ -280,7 +305,7 @@ var PieceNamespace = function(game_pieces){
                     });
                     c++;
                 } else {
-                    if (piece.color != this.color) {
+                    if (piece.player != this.player) {
                         moves.push({
                             i: this.i + c*inc.i,
                             j: this.j + c*inc.j,
@@ -300,7 +325,7 @@ var PieceNamespace = function(game_pieces){
             }.bind(this));
         },
         isLastRow: function(j) {
-            if (this.color == 'black' && j == 1 || this.color == 'red' && j == 8) {
+            if (this.color == 'black' && j == 1 || this.color != 'black' && j == 8) {
                 return true;
             }
             return false;
@@ -326,7 +351,7 @@ var PieceNamespace = function(game_pieces){
                 this.highlight();
             }
 
-            this.ctx.drawImage(this.piece, this.i * square_size, this.j * square_size, square_size, square_size);
+            this.ctx.drawImage(this.img, this.i * square_size, this.j * square_size, square_size, square_size);
         }
     }
 
@@ -342,6 +367,7 @@ var PieceNamespace = function(game_pieces){
     function SideEffect() {}
 
     function Capture(piece) {
+        this.captured = piece;
         this.go = function() {
             game_pieces.splice(game_pieces.indexOf(piece), 1);
         }
@@ -350,14 +376,14 @@ var PieceNamespace = function(game_pieces){
     function KingMe(piece, move) {
         this.go = function() {
             var checkerImg = (piece.color == 'black') ? blackCheckerKing : redCheckerKing;
-            game_pieces.splice(game_pieces.indexOf(piece), 1, new CheckersKingPiece(piece.ctx, move.i, move.j, checkerImg, piece.color));
+            game_pieces.splice(game_pieces.indexOf(piece), 1, new CheckersKingPiece(piece.ctx, move.i, move.j, checkerImg, piece.player));
         }
     }
 
     function EvolvePawn(piece, move) {
         this.go = function() {
             var queenImg = (piece.color == 'black') ? blackQueen : whiteQueen;
-            game_pieces.splice(game_pieces.indexOf(piece), 1, new ChessQueen(piece.ctx, move.i, move.j, queenImg, piece.color));
+            game_pieces.splice(game_pieces.indexOf(piece), 1, new ChessQueen(piece.ctx, move.i, move.j, queenImg, piece.player));
         }
     }
 

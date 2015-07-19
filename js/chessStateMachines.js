@@ -1,6 +1,9 @@
+function ChessStateMachine(game_pieces, player1, player2, piecesNamespace) {
+    GameStateMachine.call(this, game_pieces, player1, player2, piecesNamespace);
+}
 
-function NormalChessStateMachine(game_pieces, piecesNamespace) {
-    GameStateMachine.call(this,game_pieces, piecesNamespace);
+function NormalChessStateMachine(game_pieces, player1, player2, piecesNamespace) {
+    ChessStateMachine.call(this, game_pieces, player1, player2, piecesNamespace);
 
     this.next = function(square) {
         if (this.activePiece == null) {
@@ -19,7 +22,7 @@ function NormalChessStateMachine(game_pieces, piecesNamespace) {
             this.activePiece.getMove(square.i, square.j).sideEffects.map(function(x) {x.go();});
             this.activePiece.i = square.i;
             this.activePiece.j = square.j;
-            this.whoseTurn = this.toggleTurn(this.whoseTurn);
+            this.toggleTurn();
             this.deactivate();
         } 
 
@@ -29,4 +32,5 @@ function NormalChessStateMachine(game_pieces, piecesNamespace) {
     }
 }
 
-NormalChessStateMachine.prototype = Object.create(GameStateMachine.prototype);
+ChessStateMachine.prototype = Object.create(GameStateMachine.prototype);
+NormalChessStateMachine.prototype = Object.create(ChessStateMachine.prototype);

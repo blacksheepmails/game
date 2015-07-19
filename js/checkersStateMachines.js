@@ -1,24 +1,18 @@
 
-function CheckersStateMachine(game_pieces, piecesNamespace) {
-    GameStateMachine.call(this, game_pieces, piecesNamespace);
+function CheckersStateMachine(game_pieces, player1, player2, piecesNamespace) {
+    GameStateMachine.call(this, game_pieces, player1, player2, piecesNamespace);
     this.forcedPiece = null;
 }
 
-function NormalCheckersStateMachine(game_pieces, piecesNamespace) {
-    CheckersStateMachine.call(this, game_pieces, piecesNamespace);
+function NormalCheckersStateMachine(game_pieces, player1, player2, piecesNamespace) {
+    CheckersStateMachine.call(this, game_pieces, player1, player2, piecesNamespace);
 
     this.shouldActivate = function(game_piece) {
         if (game_piece == null) return false;
-        if (this.isTurnStrict(game_piece.color)) {
-            var canJump = false;
-            var myPieces = game_pieces.filter(function(a) {return a.color === game_piece.color;});
+        if (this.isTurnStrict(game_piece.player)) {
 
-            for (var c = 0; c < myPieces.length; c++) {
-                if (this.hasMoreJumps(myPieces[c])) canJump = true;
-            }
-
-            if (canJump) {
-                return this.hasMoreJumps(game_piece);
+            if (game_piece.player.canJump()) {
+                return game_piece.hasMoreJumps();
             } else {
                 return true;
             }
@@ -42,8 +36,8 @@ function NormalCheckersStateMachine(game_pieces, piecesNamespace) {
         var isJump = false;
         var isValidMove = false;
 
-        if (this.hasMoreJumps(this.activePiece)) {
-            if (this.isValidJump(this.activePiece, square.i, square.j)) {
+        if (this.activePiece.hasMoreJumps()) {
+            if (this.activePiece.isValidJump(square.i, square.j)) {
                 isJump = true;
                 isValidMove = true;
             }
@@ -55,12 +49,12 @@ function NormalCheckersStateMachine(game_pieces, piecesNamespace) {
             this.activePiece.getMove(square.i, square.j).sideEffects.map(function(x) {x.go();});
             this.activePiece.i = square.i;
             this.activePiece.j = square.j;
-            if (isJump && this.hasMoreJumps(this.activePiece)) {
+            if (isJump && this.activePiece.hasMoreJumps()) {
                 this.forcedPiece = this.activePiece;
                 drawing.drawBoard();
                 drawing.drawPieces(this.game_pieces);
             } else {
-                this.whoseTurn = this.toggleTurn(this.whoseTurn);
+                this.toggleTurn();
                 this.forcedPiece = null;
                 this.deactivate();
             }
@@ -72,14 +66,14 @@ function NormalCheckersStateMachine(game_pieces, piecesNamespace) {
     }
 }
 
-function WeirdCheckersStateMachine(game_pieces, piecesNamespace) {
-    CheckersStateMachine.call(this,game_pieces, piecesNamespace);
+function WeirdCheckersStateMachine(game_pieces, player1, player2, piecesNamespace) {
+    CheckersStateMachine.call(this,game_pieces, player1, player2, piecesNamespace);
 
     this.shouldActivate = function(game_piece) {
         if (game_piece == null) return false;
-        if (this.isTurnStrict(game_piece.color)) return true;
+        if (this.isTurnStrict(game_piece.player)) return true;
         if (game_piece === this.forcedPiece) return true;
-        if (this.isTurn(game_piece.color) && game_piece.color != this.forcedPiece.color) return true;
+        if (this.isTurn(game_piece.player) && game_piece.color != this.forcedPiece.color) return true;
         return false;
     }
 
@@ -98,29 +92,28 @@ function WeirdCheckersStateMachine(game_pieces, piecesNamespace) {
 
         var isValidMove;
         if (this.forcedPiece === this.activePiece) {
-            isJump = this.isValidJump(this.activePiece, square.i, square.j);
+            isJump = this.activePiece.isValidJump(square.i, square.j);
             isValidMove = isJump;
         } else {
             isValidMove = this.activePiece.isValidMove(square.i, square.j);
-            isJump = this.isValidJump(this.activePiece, square.i, square.j);
+            isJump = this.activePiece.isValidJump(square.i, square.j);
         }
 
         if (isValidMove){
             this.activePiece.getMove(square.i, square.j).sideEffects.map(function(x) {x.go();});
             this.activePiece.i = square.i;
             this.activePiece.j = square.j;
-            if (isJump && this.hasMoreJumps(this.activePiece)) {
+            if (isJump && this.activePiece.hasMoreJumps()) {
                 this.whoseTurn = 'both';
                 this.forcedPiece = this.activePiece;
                 drawing.drawBoard();
                 drawing.drawPieces(this.game_pieces);
             } else {
-                this.whoseTurn = this.toggleTurn(this.whoseTurn);
+                this.toggleTurn();
                 this.forcedPiece = null;
                 this.deactivate();
             }
         } 
-
         if (this.isGameOver()){
             console.log("Game over!");
         }
@@ -136,30 +129,6 @@ CheckersStateMachine.prototype.isGameOver = function() {
     }
     return true;
 };
-CheckersStateMachine.prototype.hasMoreJumps = function(piece) {
-    var moves = piece.possibleMoves();
-    for (var c = 0; c < moves.length; c++) {
-        for (var d = 0; d < moves[c].sideEffects.length; d ++) {
-            if (moves[c].sideEffects[d] instanceof this.pieceNamespace.Capture) {
-                return true;
-            }
-        } 
-    }
-       
-    return false;
-};
-CheckersStateMachine.prototype.isValidJump = function(piece, i, j) {
-    var moves = piece.possibleMoves();
-    for (var c = 0; c < moves.length; c++) {
-        if (moves[c].i == i && moves[c].j == j) {
-            for (var d = 0; d < moves[c].sideEffects.length; d ++) {
-                if (moves[c].sideEffects[d] instanceof this.pieceNamespace.Capture) {
-                    return true;
-                }
-            }
-        } 
-    }
-    return false;
-};
+
 WeirdCheckersStateMachine.prototype = Object.create(CheckersStateMachine.prototype);
 NormalCheckersStateMachine.prototype = Object.create(CheckersStateMachine.prototype);
