@@ -6,6 +6,38 @@ redCheckerKing.src = "red_checker_king.png";
 var blackCheckerKing = new Image();
 blackCheckerKing.src = 'black_checker_king.png';
 
+    var blackPawn = new Image();
+    blackPawn.src = "black_pawn.png";
+    var whitePawn = new Image();
+    whitePawn.src = 'white_pawn.png';
+
+    var blackKnight = new Image();
+    blackKnight.src = "black_knight.png";
+    var whiteKnight = new Image();
+    whiteKnight.src = 'white_knight.png';
+
+    var blackBishop = new Image();
+    blackBishop.src = "black_bishop.png";
+    var whiteBishop = new Image();
+    whiteBishop.src = 'white_bishop.png';
+
+    var blackRook = new Image();
+    blackRook.src = "black_rook.png";
+    var whiteRook = new Image();
+    whiteRook.src = 'white_rook.png';
+
+    var blackKing = new Image();
+    blackKing.src = "black_king.png";
+    var whiteKing = new Image();
+    whiteKing.src = 'white_king.png';
+
+    var blackQueen = new Image();
+    blackQueen.src = "black_queen.png";
+    var whiteQueen = new Image();
+    whiteQueen.src = 'white_queen.png';
+    
+
+
 var drawing = Drawing(ctx);
 
 var board_size = 400;
@@ -111,7 +143,6 @@ function initCheckers(ctx, simple) {
         return new pieceNamespace.CheckersPiece(ctx, i, j, blackCheckerImg, 'black');
     };
 
-    
     if (typeof simple === "undefined" || simple === null || !simple){
         setupCheckersPieces(game_pieces, RedChecker, BlackChecker);
     } else {
@@ -126,18 +157,54 @@ function initCheckers(ctx, simple) {
     };
 }
 
+function initChess(ctx) {
+
+    var game_pieces = [];
+    var pieceNamespace = PieceNamespace(game_pieces);
+
+    for (var i = 1; i <= 8; i ++) {
+        game_pieces.push(new pieceNamespace.ChessPawn(ctx, i, 2, whitePawn, 'red'));
+        game_pieces.push(new pieceNamespace.ChessPawn(ctx, i, 7, blackPawn, 'black'));
+    }
+    for (var i = 1; i <= 8; i += 7) {
+        game_pieces.push(new pieceNamespace.ChessRook(ctx, i, 1, whiteRook, 'red'));
+        game_pieces.push(new pieceNamespace.ChessRook(ctx, i, 8, blackRook, 'black'));
+    }
+    for (var i = 2; i <= 7; i+= 5) {
+        game_pieces.push(new pieceNamespace.ChessKnight(ctx, i, 1, whiteKnight, 'red'));
+        game_pieces.push(new pieceNamespace.ChessKnight(ctx, i, 8, blackKnight, 'black'));
+    }
+    for (var i = 3; i <= 6; i+= 3) {
+        game_pieces.push(new pieceNamespace.ChessBishop(ctx, i, 1, whiteBishop, 'red'));
+        game_pieces.push(new pieceNamespace.ChessBishop(ctx, i, 8, blackBishop, 'black'));
+    }
+    game_pieces.push(new pieceNamespace.ChessQueen(ctx, 4, 1, whiteQueen, 'red'));
+    game_pieces.push(new pieceNamespace.ChessQueen(ctx, 5, 8, blackQueen, 'black'));
+
+    game_pieces.push(new pieceNamespace.ChessKing(ctx, 5, 1, whiteKing, 'red'));
+    game_pieces.push(new pieceNamespace.ChessKing(ctx, 4, 8, blackKing, 'black'));
+
+
+
+    whiteKing.onload = drawing.drawPieces.bind(this, game_pieces);
+
+    return {
+        game_pieces: game_pieces,
+        pieceNamespace: pieceNamespace
+    };
+}
 
 var main = function(){
     
     ctx.font = '20px Arial';
 
-    var options = initCheckers(ctx, true);
+    var options = initChess(ctx);
     drawing.drawBoard();
 
     var game_pieces = options.game_pieces;
     var pieceNamespace = options.pieceNamespace;
 
-    var checkersGame = new WeirdCheckersStateMachine(game_pieces, pieceNamespace);
+    var checkersGame = new GameStateMachine(game_pieces, pieceNamespace);
 
     canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces, checkersGame);
 };

@@ -1,5 +1,5 @@
 
-function CheckersStateMachine(game_pieces, pieceNamespace) {
+function GameStateMachine(game_pieces, pieceNamespace) {
     this.game_pieces = game_pieces;
     this.pieceNamespace = pieceNamespace
     this.whoseTurn = 'red';
@@ -9,7 +9,7 @@ function CheckersStateMachine(game_pieces, pieceNamespace) {
 }
 
 function WeirdCheckersStateMachine(game_pieces, piecesNamespace) {
-    CheckersStateMachine.call(this,game_pieces, piecesNamespace);
+    GameStateMachine.call(this,game_pieces, piecesNamespace);
 
     this.shouldActivate = function(game_piece) {
         if (game_piece == null) return false;
@@ -64,7 +64,7 @@ function WeirdCheckersStateMachine(game_pieces, piecesNamespace) {
 }
 
 function NormalCheckersStateMachine(game_pieces, piecesNamespace) {
-    CheckersStateMachine.call(this, game_pieces, piecesNamespace);
+    GameStateMachine.call(this, game_pieces, piecesNamespace);
 
     this.shouldActivate = function(game_piece) {
         if (game_piece == null) return false;
@@ -132,7 +132,7 @@ function NormalCheckersStateMachine(game_pieces, piecesNamespace) {
 }
 
 
-CheckersStateMachine.prototype = {
+GameStateMachine.prototype = {
     deactivate: function() {
         this.activePiece.isActive = false;
         drawing.drawBoard();
@@ -173,7 +173,6 @@ CheckersStateMachine.prototype = {
         for (var c = 0; c < moves.length; c++) {
             for (var d = 0; d < moves[c].sideEffects.length; d ++) {
                 if (moves[c].sideEffects[d] instanceof this.pieceNamespace.Capture) {
-                    console.log(moves[c]);
                     return true;
                 }
             } 
@@ -188,7 +187,6 @@ CheckersStateMachine.prototype = {
             if (moves[c].i == i && moves[c].j == j) {
                 for (var d = 0; d < moves[c].sideEffects.length; d ++) {
                     if (moves[c].sideEffects[d] instanceof this.pieceNamespace.Capture) {
-                        console.log(moves[c]);
                         return true;
                     }
                 }
@@ -235,5 +233,5 @@ CheckersStateMachine.prototype = {
     }
 }
 
-WeirdCheckersStateMachine.prototype = Object.create(CheckersStateMachine.prototype);
-NormalCheckersStateMachine.prototype = Object.create(CheckersStateMachine.prototype);
+WeirdCheckersStateMachine.prototype = Object.create(GameStateMachine.prototype);
+NormalCheckersStateMachine.prototype = Object.create(GameStateMachine.prototype);
