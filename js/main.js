@@ -204,9 +204,9 @@ var main = function(){
     var game_pieces = options.game_pieces;
     var pieceNamespace = options.pieceNamespace;
 
-    var checkersGame = new GameStateMachine(game_pieces, pieceNamespace);
+    var game = new NormalChessStateMachine(game_pieces, pieceNamespace);
 
-    canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces, checkersGame);
+    canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces, game);
 };
 
 main();
