@@ -164,9 +164,10 @@ function initCheckers(ctx, simple) {
 function initChess(ctx) {
 
     var game_pieces = [];
-    var player1 = new ChessPlayer('white', game_pieces);
-    var player2 = new ChessPlayer('black', game_pieces)
     var pieceNamespace = PieceNamespace(game_pieces);
+    var player1 = new ChessPlayer('white', game_pieces, pieceNamespace);
+    var player2 = new ChessPlayer('black', game_pieces, pieceNamespace);
+
 
     for (var i = 1; i <= 8; i ++) {
         game_pieces.push(new pieceNamespace.ChessPawn(ctx, i, 2, whitePawn, player1));
@@ -190,7 +191,8 @@ function initChess(ctx) {
     game_pieces.push(new pieceNamespace.ChessKing(ctx, 4, 1, whiteKing, player1));
     game_pieces.push(new pieceNamespace.ChessKing(ctx, 4, 8, blackKing, player2));
 
-
+    player1.setKing();
+    player2.setKing();
 
     whiteKing.onload = drawing.drawPieces.bind(this, game_pieces);
 
@@ -206,13 +208,13 @@ var main = function(){
     
     ctx.font = '20px Arial';
 
-    var init = initCheckers(ctx, true);
+    var init = initChess(ctx);
     drawing.drawBoard();
 
     var game_pieces = init.game_pieces;
     var pieceNamespace = init.pieceNamespace;
 
-    var game = new CheckersStateMachine(game_pieces, init.player1, init.player2, pieceNamespace);
+    var game = new NormalChessStateMachine(game_pieces, init.player1, init.player2, pieceNamespace);
 
     canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces, game);
 };

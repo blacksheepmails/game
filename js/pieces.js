@@ -2,7 +2,7 @@ var PieceNamespace = function(game_pieces){
 
     CheckersKingPiece = function(ctx, i, j, img, player) {
         GamePiece.call(this, ctx, i, j, img, player);
-        this.possibleMoves = function() {
+        this.calcPossibleMoves = function() {
             var getPiece = getGamePiece.bind(this, game_pieces);
             var moves = [];
 
@@ -30,6 +30,7 @@ var PieceNamespace = function(game_pieces){
             }
 
             moves = this.makeInRange(moves);
+            this.possibleMoves = moves;
             return moves;
         }
     }
@@ -37,7 +38,7 @@ var PieceNamespace = function(game_pieces){
     CheckersPiece = function(ctx, i, j, img, player) {
         GamePiece.call(this, ctx, i, j, img, player);
 
-        this.possibleMoves = function() {
+        this.calcPossibleMoves = function() {
             var getPiece = getGamePiece.bind(this, game_pieces);
 
             var moves = [];
@@ -69,7 +70,7 @@ var PieceNamespace = function(game_pieces){
                     moves[c].sideEffects.push(new KingMe(this, moves[c]));
                 }
             }
-
+            this.possibleMoves = moves;
             return moves;
         };
     }
@@ -77,9 +78,10 @@ var PieceNamespace = function(game_pieces){
     ChessPawn = function(ctx, i, j, img, player) {
         GamePiece.call(this, ctx, i, j, img, player);
 
-        this.possibleMoves = function() {
+        this.calcPossibleMoves = function() {
             var getPiece = getGamePiece.bind(this, game_pieces);
             var moves = [];
+            var attacks = [];
             var j_dir = (this.color == 'black')? -1: 1;
 
             var piece = getPiece(this.i, this.j + j_dir);
@@ -104,11 +106,15 @@ var PieceNamespace = function(game_pieces){
             for (var i_dir = -1; i_dir <= 1; i_dir+=2) {
                 piece = getPiece(this.i + i_dir, this.j + j_dir);
                 if (piece != null && piece.player != this.player) {
-                    moves.push({
-                        i: this.i + i_dir,
-                        j: this.j + 1 * j_dir,
-                        sideEffects: [new Capture(piece)]
-                    });
+                    var move = {i: this.i + i_dir,
+                                j: this.j + 1 * j_dir,
+                                sideEffects: [new Capture(piece)]};
+                    moves.push(move);
+                    attacks.push(move);
+                } else if (piece == null) {
+                    attacks.push({i: this.i + i_dir,
+                                  j: this.j + 1 * j_dir,
+                                  sideEffects: []});
                 }
             }
 
@@ -118,6 +124,8 @@ var PieceNamespace = function(game_pieces){
                     moves[c].sideEffects.push(new EvolvePawn(this, moves[c]));
                 }
             }
+            this.possibleMoves = moves;
+            this.attacks = attacks;
             return moves;
         }
     }
@@ -125,7 +133,7 @@ var PieceNamespace = function(game_pieces){
     ChessRook = function(ctx, i, j, img, player) {
         GamePiece.call(this, ctx, i, j, img, player);
 
-        this.possibleMoves = function() {
+        this.calcPossibleMoves = function() {
             var moves = [];
             var directions = [{i: 1, j: 0},
                               {i: -1, j: 0},
@@ -134,7 +142,8 @@ var PieceNamespace = function(game_pieces){
             for (var c = 0; c < directions.length; c++) {
                 this.extend(moves, directions[c]);
             }
-
+            this.possibleMoves = moves;
+            this.attacks = moves;
             return moves;
         }
     }
@@ -142,7 +151,7 @@ var PieceNamespace = function(game_pieces){
     ChessKnight = function(ctx, i, j, img, player) {
         GamePiece.call(this, ctx, i, j, img, player);
 
-        this.possibleMoves = function() {
+        this.calcPossibleMoves = function() {
             var getPiece = getGamePiece.bind(this, game_pieces);
             var moves = [];
             var jumps = [{i: -2, j: -1},
@@ -171,6 +180,8 @@ var PieceNamespace = function(game_pieces){
                 }
             }
             moves = this.makeInRange(moves);
+            this.possibleMoves = moves;
+            this.attacks = moves;
             return moves;
         }
     }
@@ -178,7 +189,7 @@ var PieceNamespace = function(game_pieces){
     ChessBishop = function(ctx, i, j, img, player) {
         GamePiece.call(this, ctx, i, j, img, player);
 
-        this.possibleMoves = function() {
+        this.calcPossibleMoves = function() {
             var moves = [];
             var directions = [{i: 1, j: 1},
                               {i: -1, j: 1},
@@ -187,7 +198,8 @@ var PieceNamespace = function(game_pieces){
             for (var c = 0; c < directions.length; c++) {
                 this.extend(moves, directions[c]);
             }
-
+            this.possibleMoves = moves;
+            this.attacks = moves;
             return moves;
         }
     }
@@ -195,7 +207,7 @@ var PieceNamespace = function(game_pieces){
     ChessQueen = function(ctx, i, j, img, player) {
         GamePiece.call(this, ctx, i, j, img, player);
 
-        this.possibleMoves = function() {
+        this.calcPossibleMoves = function() {
             var moves = [];
             var directions = [{i: 1, j: 0},
                               {i: -1, j: 0},
@@ -208,7 +220,8 @@ var PieceNamespace = function(game_pieces){
             for (var c = 0; c < directions.length; c++) {
                 this.extend(moves, directions[c]);
             }
-
+            this.attacks = moves;
+            this.possibleMoves = moves;
             return moves;
         }
     }
@@ -216,7 +229,7 @@ var PieceNamespace = function(game_pieces){
     ChessKing = function(ctx, i, j, img, player) {
         GamePiece.call(this, ctx, i, j, img, player);
 
-        this.possibleMoves = function() {
+        this.calcPossibleMoves = function() {
             var getPiece = getGamePiece.bind(this, game_pieces);
             var moves = [];
             for (i_dir = -1; i_dir <= 1; i_dir +=1) {
@@ -238,6 +251,8 @@ var PieceNamespace = function(game_pieces){
                 }
             }
             moves = this.makeInRange(moves);
+            this.attacks = moves;
+            this.possibleMoves = moves;
             return moves;
         }
     }
@@ -249,15 +264,17 @@ var PieceNamespace = function(game_pieces){
         this.img = img;
         this.player = player
         this.color = player.color;
+        this.possibleMoves = [];
+        // this.attacks = []; put only in ChessPiece which doesnt yet exist.
     };
 
     GamePiece.prototype = {
         isActive: false,
-        possibleMoves: function() {
-            return null;
+        calcPossibleMoves: function() {
+            return [];
         },
         hasMoreJumps: function() {
-            var moves = this.possibleMoves();
+            var moves = this.possibleMoves;
             for (var c = 0; c < moves.length; c++) {
                 for (var d = 0; d < moves[c].sideEffects.length; d ++) {
                     if (moves[c].sideEffects[d] instanceof Capture) {
@@ -268,7 +285,7 @@ var PieceNamespace = function(game_pieces){
             return false;
         },
         isValidJump : function(i, j) {
-            var moves = this.possibleMoves();
+            var moves = this.possibleMoves;
             for (var c = 0; c < moves.length; c++) {
                 if (moves[c].i == i && moves[c].j == j) {
                     for (var d = 0; d < moves[c].sideEffects.length; d ++) {
@@ -281,10 +298,10 @@ var PieceNamespace = function(game_pieces){
             return false;
         },
         isValidMove: function(i, j) {
-            var validMoves = this.possibleMoves();
+            var moves = this.possibleMoves;
 
-            for (var c = 0; c < validMoves.length; c++) {
-                if (validMoves[c].i == i && validMoves[c].j == j) {
+            for (var c = 0; c < moves.length; c++) {
+                if (moves[c].i == i && moves[c].j == j) {
                     console.log(i.toString() + ', ' + j.toString() + ' is a valid move');
                     return true;
                 }
@@ -331,12 +348,11 @@ var PieceNamespace = function(game_pieces){
             return false;
         },
         getMove: function(i, j) {
-            //should save possible moves instead of clculating them each time. anyways make this better later.
-            var validMoves = this.possibleMoves();
+            var moves = this.possibleMoves;
 
-            for (var c = 0; c < validMoves.length; c++) {
-                if (validMoves[c].i == i && validMoves[c].j == j) {
-                    return validMoves[c];
+            for (var c = 0; c < moves.length; c++) {
+                if (moves[c].i == i && moves[c].j == j) {
+                    return moves[c];
                 }
             }
         },
@@ -370,6 +386,13 @@ var PieceNamespace = function(game_pieces){
         this.captured = piece;
         this.go = function() {
             game_pieces.splice(game_pieces.indexOf(piece), 1);
+        }
+    }
+    function Move(piece, i, j) {
+        this.moved = piece;
+        this.go = function() {
+            piece.i = i;
+            piece.j = j;
         }
     }
 
@@ -408,6 +431,7 @@ var PieceNamespace = function(game_pieces){
         GamePiece: GamePiece,
         Capture: Capture,
         KingMe: KingMe,
+        Move: Move,
         EvolvePawn: EvolvePawn,
         SideEffect: SideEffect
     };

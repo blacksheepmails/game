@@ -1,11 +1,11 @@
 
-function CheckersStateMachine(game_pieces, player1, player2, piecesNamespace) {
-    GameStateMachine.call(this, game_pieces, player1, player2, piecesNamespace);
+function CheckersStateMachine(game_pieces, player1, player2, pieceNamespace) {
+    GameStateMachine.call(this, game_pieces, player1, player2, pieceNamespace);
     this.forcedPiece = null;
 }
 
-function NormalCheckersStateMachine(game_pieces, player1, player2, piecesNamespace) {
-    CheckersStateMachine.call(this, game_pieces, player1, player2, piecesNamespace);
+function NormalCheckersStateMachine(game_pieces, player1, player2, pieceNamespace) {
+    CheckersStateMachine.call(this, game_pieces, player1, player2, pieceNamespace);
 
     this.shouldActivate = function(game_piece) {
         if (game_piece == null) return false;
@@ -21,6 +21,7 @@ function NormalCheckersStateMachine(game_pieces, player1, player2, piecesNamespa
     }
 
     this.next = function(square) {
+        this.updatePossibleMoves();
 
         if (this.activePiece == null) {
             var game_piece = getGamePiece(this.game_pieces, square.i, square.j);
@@ -66,8 +67,8 @@ function NormalCheckersStateMachine(game_pieces, player1, player2, piecesNamespa
     }
 }
 
-function WeirdCheckersStateMachine(game_pieces, player1, player2, piecesNamespace) {
-    CheckersStateMachine.call(this,game_pieces, player1, player2, piecesNamespace);
+function WeirdCheckersStateMachine(game_pieces, player1, player2, pieceNamespace) {
+    CheckersStateMachine.call(this,game_pieces, player1, player2, pieceNamespace);
 
     this.shouldActivate = function(game_piece) {
         if (game_piece == null) return false;
@@ -78,7 +79,7 @@ function WeirdCheckersStateMachine(game_pieces, player1, player2, piecesNamespac
     }
 
     this.next = function(square) {
-
+        this.updatePossibleMoves();
         if (this.activePiece == null) {
             var game_piece = getGamePiece(this.game_pieces, square.i, square.j);
             if (this.shouldActivate(game_piece)) this.activate(game_piece);

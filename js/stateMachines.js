@@ -46,6 +46,11 @@ GameStateMachine.prototype = {
     getPieces: function(player) {
         return this.game_pieces.filter(function(a) {return a.player === player;})
     },
+    updatePossibleMoves: function() {
+        for (var c = 0; c < this.game_pieces.length; c++) {
+            this.game_pieces[c].calcPossibleMoves();
+        }
+    },
     next: function(square) {
         if (this.activePiece == null) {
             var game_piece = getGamePiece(this.game_pieces, square.i, square.j);
@@ -57,6 +62,7 @@ GameStateMachine.prototype = {
             this.deactivate();
             return;
         }
+        this.updatePossibleMoves();
         var isValidMove = this.activePiece.isValidMove(square.i, square.j);
         
         if (isValidMove){
