@@ -104,24 +104,19 @@ ChessPlayer.prototype.addCastleMoves = function() {
     if (this.isInCheck()) return;
         
     if (this.canCastleSquare2) {
-        console.log('can castle 2');
         var rook = getGamePiece(this.game_pieces, 1, this.firstRow);
         var rookMove = (rook === null)? null : rook.getMove(3, this.firstRow);
         if (rookMove != null && rookMove.sideEffects.length == 0) {
             var middleSquares = [{i: 2, j: this.firstRow},
                                  {i: 3, j: this.firstRow}];
             if (!this.isAttacked(middleSquares)) {
-                console.log('adding castle move2');
-                console.log(this.color);
                 this.king.possibleMoves.push({i: 2,
                                               j: this.firstRow,
                                               sideEffects: [ new this.pieceNamespace.Move(rook, 3, this.firstRow) ]});
-                console.log(this.king.possibleMoves);
             }
         }
     }
     if (this.canCastleSquare6) {
-        console.log('can castle 6');
         var rook = getGamePiece(this.game_pieces, 8, this.firstRow);
         var rookMove = (rook === null)? null : rook.getMove(5, this.firstRow);
         if (rookMove != null && rookMove.sideEffects.length == 0) {
@@ -129,7 +124,6 @@ ChessPlayer.prototype.addCastleMoves = function() {
                                  {i: 6, j: this.firstRow},
                                  {i: 7, j: this.firstRow}];
             if (!this.isAttacked(middleSquares)) {
-                console.log('adding castle move6');
                 this.king.possibleMoves.push({i: 6,
                                               j: this.firstRow,
                                               sideEffects: [ new this.pieceNamespace.Move(rook, 5, this.firstRow) ]});
