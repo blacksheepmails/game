@@ -36,7 +36,7 @@ def post_click():
 def index():
     if 'username' in session:
         return 'Logged in as %s' % escape(session['username'])
-    return 'You are not logged in'
+    return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -46,22 +46,13 @@ def login():
         session['game'] = request.form['gamename']
         session['player'] = request.form['player']
         session['outCount'] = 0
+
         if session['game'] not in log:
             log[session['game']] = []
+
         return redirect(url_for('index'))
-    return '''
-        <form action="" method="post">
-            <p>username: <input type=text name=username>
-            <p>gamename: <input type=text name=gamename>
-            <p>player in game: <select name=player>
-                <option value=white>white</option>
-                <option value=black>black</option>
-                <option value=both>both</option>
-                <option value=none>none</option>
-                </select>
-            <p><input type=submit value=go!>
-        </form>
-    '''
+
+    return app.send.send_static_file('login.html')
 
 @app.route('/logout')
 def logout():
