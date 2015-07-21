@@ -34,6 +34,7 @@ function NormalCheckersStateMachine(game_pieces, player1, player2, pieceNamespac
             return;
         }
 
+        var move = null;
         var isJump = false;
         var isValidMove = false;
 
@@ -47,9 +48,8 @@ function NormalCheckersStateMachine(game_pieces, player1, player2, pieceNamespac
         }
         
         if (isValidMove){
-            this.activePiece.getMove(square.i, square.j).sideEffects.map(function(x) {x.go();});
-            this.activePiece.i = square.i;
-            this.activePiece.j = square.j;
+            move = this.makeMoveObject(square);
+            this.move(this.activePiece, square);
             if (isJump && this.activePiece.hasMoreJumps()) {
                 this.forcedPiece = this.activePiece;
                 drawing.drawBoard();
@@ -64,6 +64,7 @@ function NormalCheckersStateMachine(game_pieces, player1, player2, pieceNamespac
         if (this.isGameOver()){
             console.log("Game over!");
         }
+        return move;
     }
 }
 
@@ -80,6 +81,7 @@ function WeirdCheckersStateMachine(game_pieces, player1, player2, pieceNamespace
 
     this.next = function(square) {
         this.updatePossibleMoves();
+
         if (this.activePiece == null) {
             var game_piece = getGamePiece(this.game_pieces, square.i, square.j);
             if (this.shouldActivate(game_piece)) this.activate(game_piece);
@@ -90,20 +92,22 @@ function WeirdCheckersStateMachine(game_pieces, player1, player2, pieceNamespace
             this.deactivate();
             return;
         }
-
+        var move = null;
         var isValidMove;
+        var isJump = this.activePiece.isValidJump(square.i, square.j);
+
+
         if (this.forcedPiece === this.activePiece) {
-            isJump = this.activePiece.isValidJump(square.i, square.j);
             isValidMove = isJump;
         } else {
             isValidMove = this.activePiece.isValidMove(square.i, square.j);
-            isJump = this.activePiece.isValidJump(square.i, square.j);
         }
 
         if (isValidMove){
-            this.activePiece.getMove(square.i, square.j).sideEffects.map(function(x) {x.go();});
-            this.activePiece.i = square.i;
-            this.activePiece.j = square.j;
+            move = this.makeMoveObject(square);
+
+            this.move(this.activePiece, square);
+
             if (isJump && this.activePiece.hasMoreJumps()) {
                 this.whoseTurn = 'both';
                 this.forcedPiece = this.activePiece;
@@ -118,8 +122,11 @@ function WeirdCheckersStateMachine(game_pieces, player1, player2, pieceNamespace
         if (this.isGameOver()){
             console.log("Game over!");
         }
+        return move;
     }
 }
+
+
 
 CheckersStateMachine.prototype = Object.create(GameStateMachine.prototype);
 CheckersStateMachine.prototype.isGameOver = function() {
@@ -131,5 +138,46 @@ CheckersStateMachine.prototype.isGameOver = function() {
     return true;
 };
 
+
+
+
 WeirdCheckersStateMachine.prototype = Object.create(CheckersStateMachine.prototype);
+WeirdCheckersStateMachine.prototype.makeMove = function(from, to) {
+    this.updatePossibleMoves();
+    var piece = getGamePiece(this.game_pieces, from.i, from.j);
+    var isJump = piece.isValidJump(to.i, to.j);
+
+    this.move(piece, to);
+
+    if (isJump && piece.hasMoreJumps()) {
+        this.whoseTurn = 'both';
+        this.forcedPiece = piece;
+        drawing.drawBoard();
+        drawing.drawPieces(this.game_pieces);
+    } else {
+        this.toggleTurn();
+        this.forcedPiece = null;
+        this.deactivate(piece);
+    }
+};
+
+
+
 NormalCheckersStateMachine.prototype = Object.create(CheckersStateMachine.prototype);
+NormalCheckersStateMachine.prototype.makeMove = function(from, to) {
+    this.updatePossibleMoves();
+    var piece = getGamePiece(this.game_pieces, from.i, from.j);
+    var isJump = piece.isValidJump(to.i, to.j);
+
+    this.move(piece, to);
+
+    if (isJump && piece.hasMoreJumps()) {
+        this.forcedPiece = piece;
+        drawing.drawBoard();
+        drawing.drawPieces(this.game_pieces);
+    } else {
+        this.toggleTurn();
+        this.forcedPiece = null;
+        this.deactivate(piece);
+    }
+};

@@ -15,15 +15,14 @@ function NormalChessStateMachine(game_pieces, player1, player2, pieceNamespace) 
             this.deactivate();
             return;
         }
+        var move = null;
         this.updatePossibleMoves();
-
         var isValidMove = this.isValidMove(this.activePiece, square.i, square.j);
         
         if (isValidMove){
             this.activePiece.player.updateCanCastle(this.activePiece);
-            this.activePiece.getMove(square.i, square.j).sideEffects.map(function(x) {x.go();});
-            this.activePiece.i = square.i;
-            this.activePiece.j = square.j;
+            move = this.makeMoveObject(square);
+            this.move(this.activePiece, square);
             this.toggleTurn();
             this.deactivate();
         } 
@@ -31,6 +30,7 @@ function NormalChessStateMachine(game_pieces, player1, player2, pieceNamespace) 
         if (this.isGameOver()){
             console.log("Game over!");
         }
+        return move;
     }
 }
 

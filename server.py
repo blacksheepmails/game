@@ -1,39 +1,74 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session, redirect, url_for, escape
 app = Flask(__name__)
 
-click = []
-inCount = 0
-outCount = 0
+inCount = {}
+log = {}
 
 @app.route('/<path:path>')
 def static_proxy(path):
-    # send_static_file will guess the correct MIME type
     return app.send_static_file(path)
 
 @app.route('/game')
 def root():
-    return app.send_static_file('game.html')
+    if 'username' in session:
+        return app.send_static_file('game.html')
+    return 'You are not logged in'
 
-@app.route('/get_click', methods=['GET'])
+@app.route('/get_move', methods=['GET'])
 def get_click():
-	global outCount
 
-	if outCount < inCount :
-		outCount += 1
-		print('click is ', click)
+    if 'outCount' in session:
+        if session['outCount'] < len(log[session['game']]) :
+            click = log[session['game']][session['outCount']]
+            session['outCount'] += 1
+            return jsonify(click)
+    return ''
 
-		return jsonify(click)
-	return ''
-
-@app.route('/post_click', methods=['POST'])
+@app.route('/post_move', methods=['POST'])
 def post_click():
-	global inCount
-	global click
+    global log
+    if 'username' in session:
+        click = request.get_json()
+        log[session['game']].append(click)
+    return ''
 
-	click = request.get_json()
-	print('recieved', click)
-	inCount += 2
-	return ''
+@app.route('/')
+def index():
+    if 'username' in session:
+        return 'Logged in as %s' % escape(session['username'])
+    return 'You are not logged in'
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    global log
+    if request.method == 'POST':
+        session['username'] = request.form['username']
+        session['game'] = request.form['gamename']
+        session['player'] = request.form['player']
+        session['outCount'] = 0
+        if session['game'] not in log:
+            log[session['game']] = []
+        return redirect(url_for('index'))
+    return '''
+        <form action="" method="post">
+            <p>username: <input type=text name=username>
+            <p>gamename: <input type=text name=gamename>
+            <p>player in game: <select name=player>
+                <option value=white>white</option>
+                <option value=black>black</option>
+                <option value=both>both</option>
+                <option value=none>none</option>
+                </select>
+            <p><input type=submit value=go!>
+        </form>
+    '''
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('index'))
+
+app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 if __name__ == "__main__":
     app.run(debug=True)

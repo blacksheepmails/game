@@ -9,8 +9,9 @@ function GameStateMachine(game_pieces, player1, player2, pieceNamespace) {
 }
 
 GameStateMachine.prototype = {
-    deactivate: function() {
-        this.activePiece.isActive = false;
+    deactivate: function(game_piece) {
+        if (typeof game_piece === "undefined") game_piece = this.activePiece;   
+        game_piece.isActive = false;
         drawing.drawBoard();
         drawing.drawPieces(this.game_pieces);
         this.activePiece = null;  
@@ -51,6 +52,23 @@ GameStateMachine.prototype = {
             this.game_pieces[c].calcPossibleMoves();
         }
     },
+    move: function(piece, square) {
+        piece.getMove(square.i, square.j).sideEffects.map(function(x) {x.go();});
+        piece.i = square.i;
+        piece.j = square.j;
+    },
+    makeMove: function(from, to) {
+        this.updatePossibleMoves();
+        var piece = getGamePiece(this.game_pieces, from.i, from.j);
+        this.move(piece, to);
+        this.toggleTurn();
+        this.deactivate(piece);
+    },
+    makeMoveObject: function(square) {
+        return {from: {i: this.activePiece.i, j: this.activePiece.j}, 
+                to: square,
+                color: this.activePiece.color};
+    },
     next: function(square) {
         if (this.activePiece == null) {
             var game_piece = getGamePiece(this.game_pieces, square.i, square.j);
@@ -62,13 +80,13 @@ GameStateMachine.prototype = {
             this.deactivate();
             return;
         }
+        var move = null;
         this.updatePossibleMoves();
         var isValidMove = this.activePiece.isValidMove(square.i, square.j);
         
         if (isValidMove){
-            this.activePiece.getMove(square.i, square.j).sideEffects.map(function(x) {x.go();});
-            this.activePiece.i = square.i;
-            this.activePiece.j = square.j;
+            move = this.makeMoveObject(square);
+            this.move(this.activePiece, square);
             this.toggleTurn();
             this.deactivate();
         } 
@@ -76,6 +94,7 @@ GameStateMachine.prototype = {
         if (this.isGameOver()){
             console.log("Game over!");
         }
+        return move;
     }
 }
 
