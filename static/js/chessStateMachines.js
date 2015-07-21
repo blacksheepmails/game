@@ -37,8 +37,8 @@ function NormalChessStateMachine(game_pieces, player1, player2, pieceNamespace) 
 ChessStateMachine.prototype = Object.create(GameStateMachine.prototype);
 NormalChessStateMachine.prototype = Object.create(ChessStateMachine.prototype);
 NormalChessStateMachine.prototype.isValidMove = function(piece, i, j) {
-
     if (!piece.isValidMove(i, j)) return false;
+
     var old_i = piece.i;
     var old_j = piece.j;
     piece.i = i;

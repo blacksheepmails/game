@@ -1,9 +1,9 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 app = Flask(__name__)
 
-@app.route("/")
-def hello():
-    return "Hello World!"
+click = []
+inCount = 0
+outCount = 0
 
 @app.route('/<path:path>')
 def static_proxy(path):
@@ -14,13 +14,26 @@ def static_proxy(path):
 def root():
     return app.send_static_file('game.html')
 
-@app.route('/get_move', methods=['GET'])
-def get_move():
-    return jsonify(questions) 
+@app.route('/get_click', methods=['GET'])
+def get_click():
+	global outCount
 
-@app.route('/send_move', methods=['POST'])
-def send_move():
-    return ''
+	if outCount < inCount :
+		outCount += 1
+		print('click is ', click)
+
+		return jsonify(click)
+	return ''
+
+@app.route('/post_click', methods=['POST'])
+def post_click():
+	global inCount
+	global click
+
+	click = request.get_json()
+	print('recieved', click)
+	inCount += 2
+	return ''
 
 if __name__ == "__main__":
     app.run(debug=True)

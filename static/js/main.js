@@ -96,11 +96,20 @@ function getGamePiece(game_pieces, i, j) {
 }
 
 
-function mouseDown(ctx, canvas, game_pieces, checkersGame, e) {
+function mouseDown(ctx, canvas, game_pieces, game, e) {
     var square = getSquare(e.pageX - offset(canvas).x, e.pageY - offset(canvas).y);
 
     if (square != null) {
-        checkersGame.next(square);
+
+        $.ajax({
+            type: "POST",
+            url: "/post_click",
+            data: JSON.stringify(square),
+            dataType: "json",
+            contentType: "application/json"
+        });
+
+        //checkersGame.next(square);
     }    
 }
 
@@ -217,6 +226,14 @@ var main = function(){
     var game = new NormalChessStateMachine(game_pieces, init.player1, init.player2, pieceNamespace);
 
     canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces, game);
+
+    setInterval(function(){
+        $.get("/get_click", function(square) {
+            if (square == '') return;
+            console.log(square);
+            game.next(square);
+        });
+    }, 1000);
 };
 
 main();
