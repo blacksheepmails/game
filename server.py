@@ -27,12 +27,12 @@ def get_click():
 
 
 @app.route('/users', methods=['GET'])
-def users():
+def logged_in_users():
     return jsonify({'users': users})
 
 @app.route('/games', methods=['GET'])
-def games():
-    return jsonify({'games': log.keys})
+def active_games():
+    return jsonify({'games': list(log.keys())})
 
 @app.route('/post_move', methods=['POST'])
 def post_click():
