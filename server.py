@@ -3,6 +3,7 @@ app = Flask(__name__)
 
 inCount = {}
 log = {}
+users = []
 
 @app.route('/<path:path>')
 def static_proxy(path):
@@ -24,6 +25,15 @@ def get_click():
             return jsonify(click)
     return ''
 
+
+@app.route('/users', methods=['GET'])
+def users():
+    return jsonify({'users': users})
+
+@app.route('/games', methods=['GET'])
+def games():
+    return jsonify({'games': log.keys})
+
 @app.route('/post_move', methods=['POST'])
 def post_click():
     global log
@@ -43,6 +53,8 @@ def login():
     global log
     if request.method == 'POST':
         session['username'] = request.form['username']
+        users.append(session['username'])
+
         session['game'] = request.form['gamename']
         session['player'] = request.form['player']
         session['outCount'] = 0
@@ -56,7 +68,10 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.pop('username', None)
+    if 'username' in session:
+        users.remove(session['username'])
+        session.pop('username', None)
+
     return redirect(url_for('index'))
 
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
