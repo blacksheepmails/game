@@ -52,7 +52,7 @@ def login():
 
         return redirect(url_for('index'))
 
-    return app.send_static_file('login.html')
+    return app.send_static_file('views/login.html')
 
 @app.route('/logout')
 def logout():
