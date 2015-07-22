@@ -1,9 +1,9 @@
-function ChessStateMachine(game_pieces, player1, player2, pieceNamespace) {
-    GameStateMachine.call(this, game_pieces, player1, player2, pieceNamespace);
+function ChessStateMachine(game_pieces, player1, player2, pieceNamespace, myPlayer) {
+    GameStateMachine.call(this, game_pieces, player1, player2, pieceNamespace, myPlayer);
 }
 
-function NormalChessStateMachine(game_pieces, player1, player2, pieceNamespace) {
-    ChessStateMachine.call(this, game_pieces, player1, player2, pieceNamespace);
+function NormalChessStateMachine(game_pieces, player1, player2, pieceNamespace, myPlayer) {
+    ChessStateMachine.call(this, game_pieces, player1, player2, pieceNamespace, myPlayer);
 
     this.next = function(square) {
         if (this.activePiece == null) {

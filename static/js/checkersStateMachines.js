@@ -1,15 +1,15 @@
 
-function CheckersStateMachine(game_pieces, player1, player2, pieceNamespace) {
-    GameStateMachine.call(this, game_pieces, player1, player2, pieceNamespace);
+function CheckersStateMachine(game_pieces, player1, player2, pieceNamespace, myPlayer) {
+    GameStateMachine.call(this, game_pieces, player1, player2, pieceNamespace, myPlayer);
     this.forcedPiece = null;
 }
 
-function NormalCheckersStateMachine(game_pieces, player1, player2, pieceNamespace) {
-    CheckersStateMachine.call(this, game_pieces, player1, player2, pieceNamespace);
+function NormalCheckersStateMachine(game_pieces, player1, player2, pieceNamespace, myPlayer) {
+    CheckersStateMachine.call(this, game_pieces, player1, player2, pieceNamespace, myPlayer);
 
     this.shouldActivate = function(game_piece) {
         if (game_piece == null) return false;
-        if (this.isTurnStrict(game_piece.player)) {
+        if (this.isTurn(game_piece.player) && this.isTurn(this.myPlayer)) {
 
             if (game_piece.player.canJump()) {
                 return game_piece.hasMoreJumps();
@@ -68,11 +68,12 @@ function NormalCheckersStateMachine(game_pieces, player1, player2, pieceNamespac
     }
 }
 
-function WeirdCheckersStateMachine(game_pieces, player1, player2, pieceNamespace) {
-    CheckersStateMachine.call(this,game_pieces, player1, player2, pieceNamespace);
+function WeirdCheckersStateMachine(game_pieces, player1, player2, pieceNamespace, myPlayer) {
+    CheckersStateMachine.call(this,game_pieces, player1, player2, pieceNamespace, myPlayer);
 
     this.shouldActivate = function(game_piece) {
         if (game_piece == null) return false;
+        if ( ! this.isTurn(this.myPlayer)) return false;
         if (this.isTurnStrict(game_piece.player)) return true;
         if (game_piece === this.forcedPiece) return true;
         if (this.isTurn(game_piece.player) && game_piece.color != this.forcedPiece.color) return true;

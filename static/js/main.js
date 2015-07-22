@@ -76,8 +76,7 @@ function mouseDown(ctx, canvas, game_pieces, game, e) {
 }
 
 
-var main = function(){
-    
+var main = function(){    
     ctx.font = '20px Arial';
 
     var init = initChess(ctx, true);
@@ -85,20 +84,30 @@ var main = function(){
 
     var game_pieces = init.game_pieces;
     var pieceNamespace = init.pieceNamespace;
+    var player1 = init.player1;
+    var player2 = init.player2;
 
-    var game = new NormalChessStateMachine(game_pieces, init.player1, init.player2, pieceNamespace);
+    $.get("/get_player", function(player) {
+        var myPlayer = [];
+        if (player === 'white') myPlayer = [player1];
+        else if (player === 'black') myPlayer = [player2];
+        else if (player === 'both') myPlayer = [player1, player2];
+        var game = new NormalChessStateMachine(game_pieces, player1, player2, pieceNamespace, myPlayer);
 
-    canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces, game);
+        drawing.drawPieces(game_pieces);
 
-    drawing.drawPieces(game_pieces);
+        canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces, game);
 
-    setInterval(function(){
-        $.get("/get_move", function(move) {
-            console.log(move);
-            if (move.color === game.whoseTurn.color) {
-                game.makeMove(move.from, move.to);
-            }
-        });
-    }, 1000);
+
+        setInterval(function(){
+            $.get("/get_move", function(move) {
+                if (move.color === game.whoseTurn.color) {
+                    game.makeMove(move.from, move.to);
+                }
+            });
+        }, 1000);
+    });
+
+
 };
 window.onload = main;

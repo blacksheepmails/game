@@ -1,11 +1,12 @@
 
-function GameStateMachine(game_pieces, player1, player2, pieceNamespace) {
+function GameStateMachine(game_pieces, player1, player2, pieceNamespace, myPlayer) {
     this.game_pieces = game_pieces;
     this.pieceNamespace = pieceNamespace;
     this.player1 = player1;
     this.player2 = player2;
     this.whoseTurn = player1;
     this.activePiece = null;
+    this.myPlayer = myPlayer;
 }
 
 GameStateMachine.prototype = {
@@ -24,11 +25,25 @@ GameStateMachine.prototype = {
     },
 
     isTurn: function(player) {
-        return (this.whoseTurn === player || this.whoseTurn === 'both');
+        if (player instanceof Player) {
+            return (this.whoseTurn === player || this.whoseTurn === 'both');
+        } else {
+            for (var c=0; c<player.length; c++) {
+                if (this.isTurn(player[c])) return true;
+            }
+            return false;
+        }
     },
 
     isTurnStrict: function(player) {
-        return (this.whoseTurn === player);
+        if (player instanceof this.pieceNamespace.Player) {
+            return (this.whoseTurn === player);
+        } else {
+            for (var c=0; c<player.length; c++) {
+                if (this.isTurn(player[c])) return true;
+            }
+            return false;
+        }
     },
 
     toggleTurn: function() {
@@ -39,7 +54,7 @@ GameStateMachine.prototype = {
         }
     },
     shouldActivate: function(game_piece) {
-        return (game_piece != null && this.isTurnStrict(game_piece.player));
+        return (game_piece != null && this.isTurn(game_piece.player) && this.isTurn(this.myPlayer));
     },
     isGameOver: function() {
         return false;

@@ -54,6 +54,10 @@ def post_click():
         app.log[session['game']].append(click)
     return ''
 
+@app.route('/get_player', methods=['GET'])
+def get_player():
+    return session['player']
+
 @app.route('/')
 def index():
     if 'username' in session:
