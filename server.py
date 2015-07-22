@@ -12,8 +12,10 @@ def static_proxy(path):
 @app.route('/game')
 def root():
     if 'username' in session:
+        game_id = request.args.get('game')
+        session['game'] = game_id
         return app.send_static_file('game.html')
-    return 'You are not logged in'
+    return redirect(url_for('login'))
 
 @app.route('/get_move', methods=['GET'])
 def get_click():
@@ -66,7 +68,7 @@ def login():
         if session['game'] not in log:
             log[session['game']] = []
 
-        return redirect(url_for('root'))
+        return redirect(url_for('root', game=session['game']))
 
     return app.send_static_file('views/login.html')
 
