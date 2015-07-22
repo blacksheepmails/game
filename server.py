@@ -34,6 +34,10 @@ def logged_in_users():
 def active_games():
     return jsonify({'games': list(log.keys())})
 
+@app.route('/active', methods=['GET'])
+def active_page():
+    return app.send_static_file('views/active.html')
+
 @app.route('/post_move', methods=['POST'])
 def post_click():
     global log
