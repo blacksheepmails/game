@@ -6,8 +6,8 @@ var ActiveDisplay = React.createClass({
         };
     },
     componentDidMount: function() {
-        setInterval(Requests.loadGames.bind(this), 300);
-        setInterval(Requests.loadUsers.bind(this), 300);
+        setInterval(Requests.loadGames.bind(this), 700);
+        setInterval(Requests.loadUsers.bind(this), 700);
     },
     render: function() {
         return (
