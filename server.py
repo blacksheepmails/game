@@ -25,7 +25,7 @@ def root():
 @app.route('/get_move', methods=['GET'])
 def get_click():
 
-    if 'outCount' in session:
+    if 'outCount' in session and session['game'] in app.log:
         current_log = app.log[session['game']]
 
         if session['outCount'] < len(current_log) :
