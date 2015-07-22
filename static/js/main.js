@@ -90,6 +90,8 @@ var main = function(){
 
     canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces, game);
 
+    drawing.drawPieces(game_pieces);
+
     setInterval(function(){
         $.get("/get_move", function(move) {
             console.log(move);
@@ -99,5 +101,4 @@ var main = function(){
         });
     }, 1000);
 };
-
-main();
+window.onload = main;
