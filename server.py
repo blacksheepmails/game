@@ -62,7 +62,7 @@ def login():
         if session['game'] not in log:
             log[session['game']] = []
 
-        return redirect(url_for('index'))
+        return redirect(url_for('root'))
 
     return app.send_static_file('views/login.html')
 
