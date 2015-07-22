@@ -56,7 +56,7 @@ function initCheckers(ctx, simple) {
     };
 }
 
-function initChess(ctx) {
+function initChess(ctx, simple) {
     var blackPawn = document.getElementById('black-pawn');
     var whitePawn = document.getElementById('white-pawn');
     var blackKnight = document.getElementById('black-knight');
@@ -75,33 +75,42 @@ function initChess(ctx) {
     var player1 = new ChessPlayer('white', game_pieces, pieceNamespace);
     var player2 = new ChessPlayer('black', game_pieces, pieceNamespace);
 
+    if (typeof simple === "undefined" || !simple) {
 
-    for (var i = 1; i <= 8; i ++) {
-        game_pieces.push(new pieceNamespace.ChessPawn(ctx, i, 2, whitePawn, player1));
-        game_pieces.push(new pieceNamespace.ChessPawn(ctx, i, 7, blackPawn, player2));
-    }
-    for (var i = 1; i <= 8; i += 7) {
-        game_pieces.push(new pieceNamespace.ChessRook(ctx, i, 1, whiteRook, player1));
-        game_pieces.push(new pieceNamespace.ChessRook(ctx, i, 8, blackRook, player2));
-    }
-    for (var i = 2; i <= 7; i+= 5) {
-        game_pieces.push(new pieceNamespace.ChessKnight(ctx, i, 1, whiteKnight, player1));
-        game_pieces.push(new pieceNamespace.ChessKnight(ctx, i, 8, blackKnight, player2));
-    }
-    for (var i = 3; i <= 6; i+= 3) {
-        game_pieces.push(new pieceNamespace.ChessBishop(ctx, i, 1, whiteBishop, player1));
-        game_pieces.push(new pieceNamespace.ChessBishop(ctx, i, 8, blackBishop, player2));
-    }
-    game_pieces.push(new pieceNamespace.ChessQueen(ctx, 5, 1, whiteQueen, player1));
-    game_pieces.push(new pieceNamespace.ChessQueen(ctx, 5, 8, blackQueen, player2));
+        for (var i = 1; i <= 8; i ++) {
+            game_pieces.push(new pieceNamespace.ChessPawn(ctx, i, 2, whitePawn, player1));
+            game_pieces.push(new pieceNamespace.ChessPawn(ctx, i, 7, blackPawn, player2));
+        }
+        for (var i = 1; i <= 8; i += 7) {
+            game_pieces.push(new pieceNamespace.ChessRook(ctx, i, 1, whiteRook, player1));
+            game_pieces.push(new pieceNamespace.ChessRook(ctx, i, 8, blackRook, player2));
+        }
+        for (var i = 2; i <= 7; i+= 5) {
+            game_pieces.push(new pieceNamespace.ChessKnight(ctx, i, 1, whiteKnight, player1));
+            game_pieces.push(new pieceNamespace.ChessKnight(ctx, i, 8, blackKnight, player2));
+        }
+        for (var i = 3; i <= 6; i+= 3) {
+            game_pieces.push(new pieceNamespace.ChessBishop(ctx, i, 1, whiteBishop, player1));
+            game_pieces.push(new pieceNamespace.ChessBishop(ctx, i, 8, blackBishop, player2));
+        }
+        game_pieces.push(new pieceNamespace.ChessQueen(ctx, 5, 1, whiteQueen, player1));
+        game_pieces.push(new pieceNamespace.ChessQueen(ctx, 5, 8, blackQueen, player2));
 
-    game_pieces.push(new pieceNamespace.ChessKing(ctx, 4, 1, whiteKing, player1));
-    game_pieces.push(new pieceNamespace.ChessKing(ctx, 4, 8, blackKing, player2));
+        game_pieces.push(new pieceNamespace.ChessKing(ctx, 4, 1, whiteKing, player1));
+        game_pieces.push(new pieceNamespace.ChessKing(ctx, 4, 8, blackKing, player2));
+
+    } else {
+        game_pieces.push(new pieceNamespace.ChessRook(ctx, 1, 1, whiteRook, player1));
+        game_pieces.push(new pieceNamespace.ChessRook(ctx, 1, 8, blackRook, player2));
+        game_pieces.push(new pieceNamespace.ChessKing(ctx, 4, 1, whiteKing, player1));
+        game_pieces.push(new pieceNamespace.ChessKing(ctx, 4, 8, blackKing, player2));
+        game_pieces.push(new pieceNamespace.ChessQueen(ctx, 5, 1, whiteQueen, player1));
+        game_pieces.push(new pieceNamespace.ChessPawn(ctx, 7, 7, blackPawn, player2));
+    }
 
     player1.setKing();
     player2.setKing();
 
-    console.log(game_pieces);
     drawing.drawPieces(game_pieces);
 
 
