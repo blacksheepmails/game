@@ -80,13 +80,13 @@ var main = function(){
     
     ctx.font = '20px Arial';
 
-    var init = initCheckers(ctx, true);
+    var init = initChess(ctx, true);
     drawing.drawBoard();
 
     var game_pieces = init.game_pieces;
     var pieceNamespace = init.pieceNamespace;
 
-    var game = new NormalCheckersStateMachine(game_pieces, init.player1, init.player2, pieceNamespace);
+    var game = new NormalChessStateMachine(game_pieces, init.player1, init.player2, pieceNamespace);
 
     canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces, game);
 
