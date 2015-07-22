@@ -1,9 +1,14 @@
-from flask import Flask, request, jsonify, session, redirect, url_for, escape
+from flask import Flask, current_app
+from flask import jsonify, redirect, url_for, escape
+from flask import request,  session 
+from flask import g as Globals
+
+
 app = Flask(__name__)
 
-inCount = {}
-log = {}
-users = []
+app.users = []
+app.log = {}
+app.inCount = {}
 
 @app.route('/<path:path>')
 def static_proxy(path):
@@ -21,8 +26,10 @@ def root():
 def get_click():
 
     if 'outCount' in session:
-        if session['outCount'] < len(log[session['game']]) :
-            click = log[session['game']][session['outCount']]
+        current_log = app.log[session['game']]
+
+        if session['outCount'] < len(current_log) :
+            click = current_log[session['outCount']]
             session['outCount'] += 1
             return jsonify(click)
     return ''
@@ -30,11 +37,11 @@ def get_click():
 
 @app.route('/users', methods=['GET'])
 def logged_in_users():
-    return jsonify({'users': users})
+    return jsonify({'users': app.users})
 
 @app.route('/games', methods=['GET'])
 def active_games():
-    return jsonify({'games': list(log.keys())})
+    return jsonify({'games': list(app.log.keys())})
 
 @app.route('/active', methods=['GET'])
 def active_page():
@@ -42,10 +49,9 @@ def active_page():
 
 @app.route('/post_move', methods=['POST'])
 def post_click():
-    global log
     if 'username' in session:
         click = request.get_json()
-        log[session['game']].append(click)
+        app.log[session['game']].append(click)
     return ''
 
 @app.route('/')
@@ -56,17 +62,16 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    global log
     if request.method == 'POST':
         session['username'] = request.form['username']
-        users.append(session['username'])
+        app.users.append(session['username'])
 
         session['game'] = request.form['gamename']
         session['player'] = request.form['player']
         session['outCount'] = 0
 
-        if session['game'] not in log:
-            log[session['game']] = []
+        if session['game'] not in app.log:
+            app.log[session['game']] = []
 
         return redirect(url_for('root', game=session['game']))
 
@@ -75,12 +80,13 @@ def login():
 @app.route('/logout')
 def logout():
     if 'username' in session:
-        users.remove(session['username'])
+        app.users.remove(session['username'])
         session.pop('username', None)
 
     return redirect(url_for('index'))
 
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
+
 
 if __name__ == "__main__":
     app.run(debug=True)
