@@ -87,6 +87,7 @@ var main = function(){
 
     var game_pieces = init.game_pieces;
     var pieceNamespace = init.pieceNamespace;
+    
     var player1 = init.player1;
     var player2 = init.player2;
 
