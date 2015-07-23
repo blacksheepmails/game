@@ -29,7 +29,8 @@ function NormalChessStateMachine(game_pieces, player1, player2, pieceNamespace, 
         } 
 
         if (this.isGameOver()){
-            console.log("Game over!");
+            if (this.whoseTurn.isInCheck()) console.log(this.whoseTurn.color + 'lost');
+            else console.log("draw!");
         }
         return move;
     }
@@ -39,7 +40,7 @@ ChessStateMachine.prototype = Object.create(GameStateMachine.prototype);
 NormalChessStateMachine.prototype = Object.create(ChessStateMachine.prototype);
 NormalChessStateMachine.prototype.isValidMove = function(piece, i, j) {
     if (!piece.isValidMove(i, j)) return false;
-
+    return piece.player.isValidMove(piece, i, j);
     var old_i = piece.i;
     var old_j = piece.j;
     var effects = piece.getMove(i, j).sideEffects;
@@ -66,3 +67,6 @@ NormalChessStateMachine.prototype.updatePossibleMoves = function() {
     ChessStateMachine.prototype.updatePossibleMoves.call(this);
     this.whoseTurn.addCastleMoves();
 };
+NormalChessStateMachine.prototype.isGameOver = function() {
+    return !this.whoseTurn.canMove();
+}

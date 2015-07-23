@@ -88,9 +88,10 @@ var main = function(){
     $.get("/get_game_options", function(options) {
         ctx.font = '20px Arial';
         var init
-        if (options.setup == 'simple checkers') init = initCheckers(ctx,true);
+        console.log(options);
+        if (options.setup == 'simple_checkers') init = initCheckers(ctx,true);
         else if (options.setup == 'checkers') init = initCheckers(ctx);
-        else if (options.setup == 'simple chess') init = initChess(ctx,true);
+        else if (options.setup == 'simple_chess') init = initChess(ctx,true);
         else if (options.setup == 'chess') init = initChess(ctx);
         else console.log('this is not init with valid setup');
 
@@ -112,7 +113,7 @@ var main = function(){
         if (options.stateMachine === 'normal') game = GameStateMachine;
         else if (options.stateMachine == 'chess') game = NormalChessStateMachine;
         else if (options.stateMachine == 'checkers') game = NormalCheckersStateMachine;
-        else if (options.stateMachine == 'weird checkers') game = WeirdCheckersStateMachine;
+        else if (options.stateMachine == 'weird_checkers') game = WeirdCheckersStateMachine;
         game = new game(game_pieces, player1, player2, pieceNamespace, myPlayer);
 
         drawing.drawPieces(game_pieces);

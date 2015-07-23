@@ -88,8 +88,40 @@ ChessPlayer.prototype.isAttacked = function(squares) {
 ChessPlayer.prototype.canMove = function() {
     var myPieces = this.getMyPieces();
     for (var c = 0; c < myPieces.length; c++) {
-        
+        for (var d = 0; d < myPieces[c].possibleMoves.length; d ++) {
+            var move = myPieces[c].possibleMoves[d];
+            if (this.isValidMove(myPieces[c], move.i, move.j)) return true;
+        }
     }
+}
+ChessPlayer.prototype.isValidMove = function(piece, i, j) {
+    var old_i = piece.i;
+    var old_j = piece.j;
+    var effects = piece.getMove(i, j).sideEffects;
+    var temp = null;
+    for (var c = 0; c < effects.length; c++) {
+        if (effects[c] instanceof this.pieceNamespace.Capture) {
+            temp = effects[c].captured;
+            effects[c].go();
+        }
+    }
+    piece.i = i;
+    piece.j = j;
+
+    var opponentPieces = this.getOpponentPieces();
+    for (var c = 0; c < opponentPieces.length; c++) {
+        opponentPieces[c].calcPossibleMoves();
+    }
+    var returnVal = !this.isInCheck()
+    piece.i = old_i;
+    piece.j = old_j;
+    if (temp != null) this.game_pieces.push(temp);
+
+    for (var c = 0; c < opponentPieces.length; c++) {
+        opponentPieces[c].calcPossibleMoves();
+    }
+
+    return returnVal;
 }
 ChessPlayer.prototype.updateCanCastle = function(activePiece) {
     if (activePiece === this.king) {
