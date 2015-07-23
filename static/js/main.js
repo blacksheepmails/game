@@ -84,17 +84,33 @@ function mouseDown(ctx, canvas, game_pieces, game, e) {
     }    
 };
 
-var isClickable = function(canvas, game_pieces, e){
+var isClickable = function(canvas, game_pieces, game, e){
+    var isMyTurn = game.isTurn(game.myPlayer);
+    if (!isMyTurn) return false;
+
     var square = currentSquareUnderMouse(canvas, e);
     if (square === null) return false;
 
     var piece = getGamePiece(game_pieces, square.i, square.j);
 
-    return piece != null;
+    if (piece === null) return false; 
+
+    var found = false;
+    for (var i = 0; i < game.myPlayer.length; i++){
+        if (piece.player == game.myPlayer[i]){
+            found = true;
+        }
+    }
+
+    if (!found) return false;
+
+    piece.calcPossibleMoves();
+    
+    return piece.possibleMoves.length > 0;
 };
 
-var mouseMove = function(canvas, game_pieces, e){
-    if (isClickable(canvas, game_pieces, e)){
+var mouseMove = function(canvas, game_pieces, myPlayer, e){
+    if (isClickable(canvas, game_pieces, myPlayer, e)){
         $('#myCanvas').css( 'cursor', 'pointer');
     } else {
         $('#myCanvas').css('cursor', 'default');
@@ -138,11 +154,16 @@ var main = function(){
         drawing.drawPieces(game_pieces);
 
         canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces, game);
-        canvas.addEventListener('mousemove', mouseMove.bind(this, canvas, game_pieces));
+        canvas.addEventListener('mousemove', mouseMove.bind(this, canvas, game_pieces, game));
 
         window.addEventListener("resize", function(){
-            canvas.height = window.innerHeight - 20;
-            canvas.width = canvas.height;
+            if (window.innerHeight < window.innerWidth){
+                canvas.height = window.innerHeight - 20;
+                canvas.width = canvas.height;
+            } else {
+                canvas.width = window.innerWidth - 20;
+                canvas.height = canvas.width;
+            }
 
             board_size = canvas.height;
             square_size = board_size / 10;
