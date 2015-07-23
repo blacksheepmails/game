@@ -55,9 +55,10 @@ def post_move():
         app.log[session['game']].append(move)
     return ''
 
-@app.route('/get_player', methods=['GET'])
-def get_player():
-    return session['player']
+@app.route('/get_game_options', methods=['GET'])
+def get_game_options():
+    obj = {'player': session['player'], 'setup': session['setup'], 'stateMachine': session['stateMachine']}
+    return (jsonify(obj))
 
 @app.route('/')
 def index():
@@ -73,6 +74,8 @@ def login():
 
         session['game'] = request.form['gamename']
         session['player'] = request.form['player']
+        session['setup'] = request.form['setup']
+        session['stateMachine'] = request.form['stateMachine']
         session['outCount'] = 0
 
         if session['game'] not in app.log:

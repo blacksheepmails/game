@@ -80,23 +80,37 @@ function mouseDown(ctx, canvas, game_pieces, game, e) {
 
 
 var main = function(){    
-    ctx.font = '20px Arial';
 
-    var init = initCheckers(ctx, true);
-    drawing.drawBoard();
 
-    var game_pieces = init.game_pieces;
-    var pieceNamespace = init.pieceNamespace;
-    
-    var player1 = init.player1;
-    var player2 = init.player2;
+    $.get("/get_game_options", function(options) {
+        ctx.font = '20px Arial';
+        var init
+        if (options.setup == 'simple checkers') init = initCheckers(ctx,true);
+        else if (options.setup == 'checkers') init = initCheckers(ctx);
+        else if (options.setup == 'simple chess') init = initChess(ctx,true);
+        else if (options.setup == 'chess') init = initChess(ctx);
+        else console.log('this is not init with valid setup');
 
-    $.get("/get_player", function(player) {
+        drawing.drawBoard();
+
+        var game_pieces = init.game_pieces;
+        var pieceNamespace = init.pieceNamespace;
+
+        var player1 = init.player1;
+        var player2 = init.player2;
+
         var myPlayer = [];
-        if (player === 'white') myPlayer = [player1];
-        else if (player === 'black') myPlayer = [player2];
-        else if (player === 'both') myPlayer = [player1, player2];
-        var game = new CheckersStateMachine(game_pieces, player1, player2, pieceNamespace, myPlayer);
+        if (options.player === 'white') myPlayer = [player1];
+        else if (options.player === 'black') myPlayer = [player2];
+        else if (options.player === 'both') myPlayer = [player1, player2];
+
+
+        var game
+        if (options.stateMachine === 'normal') game = GameStateMachine;
+        else if (options.stateMachine == 'chess') game = NormalChessStateMachine;
+        else if (options.stateMachine == 'checkers') game = NormalCheckersStateMachine;
+        else if (options.stateMachine == 'weird checkers') game = WeirdCheckersStateMachine;
+        game = new game(game_pieces, player1, player2, pieceNamespace, myPlayer);
 
         drawing.drawPieces(game_pieces);
 
