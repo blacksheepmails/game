@@ -63,9 +63,12 @@ function getGamePiece(game_pieces, i, j) {
     return null;
 }
 
+var currentSquareUnderMouse = function(canvas, e){
+    return getSquare(e.pageX - offset(canvas).x, e.pageY - offset(canvas).y);
+};
 
 function mouseDown(ctx, canvas, game_pieces, game, e) {
-    var square = getSquare(e.pageX - offset(canvas).x, e.pageY - offset(canvas).y);
+    var square = currentSquareUnderMouse(canvas, e);
 
     if (square != null) {
         var move = game.next(square);
@@ -79,8 +82,24 @@ function mouseDown(ctx, canvas, game_pieces, game, e) {
             });
         }
     }    
-}
+};
 
+var isClickable = function(canvas, game_pieces, e){
+    var square = currentSquareUnderMouse(canvas, e);
+    if (square === null) return false;
+
+    var piece = getGamePiece(game_pieces, square.i, square.j);
+
+    return piece != null;
+};
+
+var mouseMove = function(canvas, game_pieces, e){
+    if (isClickable(canvas, game_pieces, e)){
+        $('#myCanvas').css( 'cursor', 'pointer');
+    } else {
+        $('#myCanvas').css('cursor', 'default');
+    }
+};
 
 var main = function(){    
 
@@ -119,6 +138,7 @@ var main = function(){
         drawing.drawPieces(game_pieces);
 
         canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces, game);
+        canvas.addEventListener('mousemove', mouseMove.bind(this, canvas, game_pieces));
 
         window.addEventListener("resize", function(){
             canvas.height = window.innerHeight - 20;
