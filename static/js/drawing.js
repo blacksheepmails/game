@@ -14,6 +14,7 @@ var Drawing = function(ctx){
 		        drawSquare(i, j, color);
 		    }
 		}
+		ctx.font=(board_size/20).toString() + "px Arial";
 		for (var i = 1; i <= 8; i++) {
 		 	var letter = String.fromCharCode(96+i);
 		  	ctx.fillText(letter, i * square_size, 20);
