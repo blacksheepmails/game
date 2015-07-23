@@ -145,8 +145,13 @@ var main = function(){
         canvas.addEventListener('mousemove', mouseMove.bind(this, canvas, game_pieces));
 
         window.addEventListener("resize", function(){
-            canvas.height = window.innerHeight - 20;
-            canvas.width = canvas.height;
+            if (window.innerHeight < window.innerWidth){
+                canvas.height = window.innerHeight - 20;
+                canvas.width = canvas.height;
+            } else {
+                canvas.width = window.innerWidth - 20;
+                canvas.height = canvas.width;
+            }
 
             board_size = canvas.height;
             square_size = board_size / 10;
