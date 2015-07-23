@@ -1,6 +1,9 @@
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 var drawing = Drawing(ctx);
+var img = new Img();
+
+var date = new Date();
 
 var board_size = canvas.width;
 var square_size = board_size / 10;
@@ -79,7 +82,7 @@ function mouseDown(ctx, canvas, game_pieces, game, e) {
 var main = function(){    
     ctx.font = '20px Arial';
 
-    var init = initChess(ctx, true);
+    var init = initCheckers(ctx, true);
     drawing.drawBoard();
 
     var game_pieces = init.game_pieces;
@@ -92,7 +95,7 @@ var main = function(){
         if (player === 'white') myPlayer = [player1];
         else if (player === 'black') myPlayer = [player2];
         else if (player === 'both') myPlayer = [player1, player2];
-        var game = new NormalChessStateMachine(game_pieces, player1, player2, pieceNamespace, myPlayer);
+        var game = new CheckersStateMachine(game_pieces, player1, player2, pieceNamespace, myPlayer);
 
         drawing.drawPieces(game_pieces);
 
@@ -101,7 +104,9 @@ var main = function(){
 
         setInterval(function(){
             $.get("/get_move", function(move) {
-                if (move.color === game.whoseTurn.color) {
+                if (move === '' || move === null) return;
+                if (game.lastMove == null || move.time !== game.lastMove.time) {
+                    console.log(move);
                     game.makeMove(move.from, move.to);
                 }
             });

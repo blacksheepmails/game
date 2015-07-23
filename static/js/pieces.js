@@ -398,14 +398,14 @@ var PieceNamespace = function(game_pieces){
 
     function KingMe(piece, move) {
         this.go = function() {
-            var checkerImg = (piece.color == 'black') ? blackCheckerKing : redCheckerKing;
+            var checkerImg = (piece.color == 'black') ? img.blackCheckerKing : img.redCheckerKing;
             game_pieces.splice(game_pieces.indexOf(piece), 1, new CheckersKingPiece(piece.ctx, move.i, move.j, checkerImg, piece.player));
         }
     }
 
     function EvolvePawn(piece, move) {
         this.go = function() {
-            var queenImg = (piece.color == 'black') ? blackQueen : whiteQueen;
+            var queenImg = (piece.color == 'black') ? img.blackQueen : img.whiteQueen;
             game_pieces.splice(game_pieces.indexOf(piece), 1, new ChessQueen(piece.ctx, move.i, move.j, queenImg, piece.player));
         }
     }

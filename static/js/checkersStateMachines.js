@@ -49,6 +49,7 @@ function NormalCheckersStateMachine(game_pieces, player1, player2, pieceNamespac
         
         if (isValidMove){
             move = this.makeMoveObject(square);
+            this.lastMove = move;
             this.move(this.activePiece, square);
             if (isJump && this.activePiece.hasMoreJumps()) {
                 this.forcedPiece = this.activePiece;
@@ -73,7 +74,7 @@ function WeirdCheckersStateMachine(game_pieces, player1, player2, pieceNamespace
 
     this.shouldActivate = function(game_piece) {
         if (game_piece == null) return false;
-        if ( ! this.isTurn(this.myPlayer)) return false;
+        if (this.myPlayer.indexOf(game_piece.player) == -1) return false;
         if (this.isTurnStrict(game_piece.player)) return true;
         if (game_piece === this.forcedPiece) return true;
         if (this.isTurn(game_piece.player) && game_piece.color != this.forcedPiece.color) return true;
@@ -97,7 +98,6 @@ function WeirdCheckersStateMachine(game_pieces, player1, player2, pieceNamespace
         var isValidMove;
         var isJump = this.activePiece.isValidJump(square.i, square.j);
 
-
         if (this.forcedPiece === this.activePiece) {
             isValidMove = isJump;
         } else {
@@ -106,7 +106,7 @@ function WeirdCheckersStateMachine(game_pieces, player1, player2, pieceNamespace
 
         if (isValidMove){
             move = this.makeMoveObject(square);
-
+            this.lastMove = move;
             this.move(this.activePiece, square);
 
             if (isJump && this.activePiece.hasMoreJumps()) {

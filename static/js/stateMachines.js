@@ -7,6 +7,7 @@ function GameStateMachine(game_pieces, player1, player2, pieceNamespace, myPlaye
     this.whoseTurn = player1;
     this.activePiece = null;
     this.myPlayer = myPlayer;
+    this.lastMove = null;
 }
 
 GameStateMachine.prototype = {
@@ -36,7 +37,7 @@ GameStateMachine.prototype = {
     },
 
     isTurnStrict: function(player) {
-        if (player instanceof this.pieceNamespace.Player) {
+        if (player instanceof Player) {
             return (this.whoseTurn === player);
         } else {
             for (var c=0; c<player.length; c++) {
@@ -82,7 +83,8 @@ GameStateMachine.prototype = {
     makeMoveObject: function(square) {
         return {from: {i: this.activePiece.i, j: this.activePiece.j}, 
                 to: square,
-                color: this.activePiece.color};
+                color: this.activePiece.color,
+                time: date.getTime()};
     },
     next: function(square) {
         if (this.activePiece == null) {
@@ -101,6 +103,7 @@ GameStateMachine.prototype = {
         
         if (isValidMove){
             move = this.makeMoveObject(square);
+            this.lastMove = move;
             this.move(this.activePiece, square);
             this.toggleTurn();
             this.deactivate();

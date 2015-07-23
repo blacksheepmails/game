@@ -4,6 +4,7 @@ from flask import request,  session
 from flask import g as Globals
 
 
+
 app = Flask(__name__)
 
 app.users = []
@@ -23,15 +24,15 @@ def root():
     return redirect(url_for('login'))
 
 @app.route('/get_move', methods=['GET'])
-def get_click():
+def get_move():
 
     if 'outCount' in session and session['game'] in app.log:
         current_log = app.log[session['game']]
 
         if session['outCount'] < len(current_log) :
-            click = current_log[session['outCount']]
+            move = current_log[session['outCount']]
             session['outCount'] += 1
-            return jsonify(click)
+            return jsonify(move)
     return ''
 
 
@@ -48,10 +49,10 @@ def active_page():
     return app.send_static_file('views/active.html')
 
 @app.route('/post_move', methods=['POST'])
-def post_click():
+def post_move():
     if 'username' in session:
-        click = request.get_json()
-        app.log[session['game']].append(click)
+        move = request.get_json()
+        app.log[session['game']].append(move)
     return ''
 
 @app.route('/get_player', methods=['GET'])
@@ -94,3 +95,4 @@ app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 if __name__ == "__main__":
     app.run(debug=True)
+

@@ -22,6 +22,7 @@ function NormalChessStateMachine(game_pieces, player1, player2, pieceNamespace, 
         if (isValidMove){
             this.activePiece.player.updateCanCastle(this.activePiece);
             move = this.makeMoveObject(square);
+            this.lastMove = move;
             this.move(this.activePiece, square);
             this.toggleTurn();
             this.deactivate();
