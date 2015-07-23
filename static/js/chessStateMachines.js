@@ -40,12 +40,12 @@ ChessStateMachine.prototype = Object.create(GameStateMachine.prototype);
 NormalChessStateMachine.prototype = Object.create(ChessStateMachine.prototype);
 NormalChessStateMachine.prototype.isValidMove = function(piece, i, j) {
     if (!piece.isValidMove(i, j)) return false;
-    return piece.player.isValidMove(piece, i, j);
+    return piece.player.isValidMove(piece, i, j, this);
 };
 NormalChessStateMachine.prototype.updatePossibleMoves = function() {
     ChessStateMachine.prototype.updatePossibleMoves.call(this);
     this.whoseTurn.addCastleMoves();
 };
 NormalChessStateMachine.prototype.isGameOver = function() {
-    return !this.whoseTurn.canMove();
+    return !this.whoseTurn.canMove(this);
 }

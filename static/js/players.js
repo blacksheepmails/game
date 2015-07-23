@@ -85,16 +85,16 @@ ChessPlayer.prototype.isAttacked = function(squares) {
     }
     return false;
 }
-ChessPlayer.prototype.canMove = function() {
+ChessPlayer.prototype.canMove = function(game) {
     var myPieces = this.getMyPieces();
     for (var c = 0; c < myPieces.length; c++) {
         for (var d = 0; d < myPieces[c].possibleMoves.length; d ++) {
             var move = myPieces[c].possibleMoves[d];
-            if (this.isValidMove(myPieces[c], move.i, move.j)) return true;
+            if (this.isValidMove(myPieces[c], move.i, move.j, game)) return true;
         }
     }
 }
-ChessPlayer.prototype.isValidMove = function(piece, i, j) {
+ChessPlayer.prototype.isValidMove = function(piece, i, j, game) {
     var old_i = piece.i;
     var old_j = piece.j;
     var effects = piece.getMove(i, j).sideEffects;
@@ -108,18 +108,14 @@ ChessPlayer.prototype.isValidMove = function(piece, i, j) {
     piece.i = i;
     piece.j = j;
 
-    var opponentPieces = this.getOpponentPieces();
-    for (var c = 0; c < opponentPieces.length; c++) {
-        opponentPieces[c].calcPossibleMoves();
-    }
+    game.updatePossibleMoves();
+
     var returnVal = !this.isInCheck()
     piece.i = old_i;
     piece.j = old_j;
     if (temp != null) this.game_pieces.push(temp);
 
-    for (var c = 0; c < opponentPieces.length; c++) {
-        opponentPieces[c].calcPossibleMoves();
-    }
+    game.updatePossibleMoves();
 
     return returnVal;
 }
