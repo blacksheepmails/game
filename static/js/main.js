@@ -1,11 +1,14 @@
 var canvas = document.getElementById("myCanvas");
+canvas.height = window.innerHeight - 20;
+canvas.width = canvas.height;
+
 var ctx = canvas.getContext("2d");
 var drawing = Drawing(ctx);
 var img = new Img();
 
 var date = new Date();
 
-var board_size = canvas.width;
+var board_size = canvas.height;
 var square_size = board_size / 10;
 
 var offset = function(canvas) {
@@ -116,7 +119,15 @@ var main = function(){
 
         canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces, game);
 
+        window.addEventListener("resize", function(){
+            canvas.height = window.innerHeight - 20;
+            canvas.width = canvas.height;
 
+            board_size = canvas.height;
+            square_size = board_size / 10;
+            drawing.drawBoard();
+            drawing.drawPieces(game_pieces);
+        }, true);
         setInterval(function(){
             $.get("/get_move", function(move) {
                 if (move === '' || move === null) return;

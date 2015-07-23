@@ -5,6 +5,7 @@ var Drawing = function(ctx){
 	};
 
 	var drawBoard = function() {
+
 		var color = 'red';
 		for (var i = 1; i <= 8; i += 1) {
 			color = toggleColor(color);
