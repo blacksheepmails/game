@@ -90,7 +90,11 @@ var isClickable = function(canvas, game_pieces, e){
 
     var piece = getGamePiece(game_pieces, square.i, square.j);
 
-    return piece != null;
+    if (piece === null) return false; 
+
+    piece.calcPossibleMoves();
+
+    return piece.possibleMoves.length > 0;
 };
 
 var mouseMove = function(canvas, game_pieces, e){
