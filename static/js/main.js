@@ -1,3 +1,5 @@
+var socket = io.connect('http://localhost:5000/game_data');
+
 var canvas = document.getElementById("myCanvas");
 canvas.height = window.innerHeight - 20;
 canvas.width = canvas.height;
@@ -73,13 +75,22 @@ function mouseDown(ctx, canvas, game_pieces, game, e) {
     if (square != null) {
         var move = game.next(square);
         if (move != null) {
+
+
+
+            
+            socket.emit('client_to_server_move', move);
+                
+
+
+            /*
             $.ajax({
                 type: "POST",
                 url: "/post_move",
                 data: JSON.stringify(move),
                 dataType: "json",
                 contentType: "application/json"
-            });
+            });*/
         }
     }    
 };
@@ -117,8 +128,7 @@ var mouseMove = function(canvas, game_pieces, myPlayer, e){
     }
 };
 
-var main = function(){    
-
+var main = function(){
 
     $.get("/get_game_options", function(options) {
         ctx.font = '20px Arial';
@@ -170,7 +180,32 @@ var main = function(){
             drawing.drawBoard();
             drawing.drawPieces(game_pieces);
         }, true);
-        setInterval(function(){
+
+
+
+
+
+
+        socket.emit('start_game', '');
+
+
+        
+        socket.on('server_to_client_move', function(move) {
+            if (move === '' || move === null) return;
+            if (game.lastMove == null || move.time !== game.lastMove.time) {
+                console.log(move);
+                game.makeMove(move.from, move.to);
+            }
+        });
+
+
+
+
+
+
+
+
+        /*setInterval(function(){
             $.get("/get_move", function(move) {
                 if (move === '' || move === null) return;
                 if (game.lastMove == null || move.time !== game.lastMove.time) {
@@ -178,7 +213,7 @@ var main = function(){
                     game.makeMove(move.from, move.to);
                 }
             });
-        }, 1000);
+        }, 1000);*/
     });
 
 
