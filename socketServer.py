@@ -82,11 +82,14 @@ def logout():
 def received_move(move):
 	if 'username' in session:
 		emit('server_to_client_move', move, room = session['game'])
+		app.log[session['game']].append(move)
 
 @socketio.on('start_game', namespace='/game_data')
 def start_game(stuff):
 	if 'username' in session:
 		join_room(session['game'])
+		for move in app.log[session['game']]:
+			emit('server_to_client_move', move)
 
 
 

@@ -1,17 +1,15 @@
 var socket = io.connect('http://localhost:5000/game_data');
 
 var canvas = document.getElementById("myCanvas");
-canvas.height = window.innerHeight - 20;
-canvas.width = canvas.height;
+
+var board_size;
+var square_size;
 
 var ctx = canvas.getContext("2d");
 var drawing = Drawing(ctx);
 var img = new Img();
 
 var date = new Date();
-
-var board_size = canvas.height;
-var square_size = board_size / 10;
 
 var offset = function(canvas) {
     var x = 0;
@@ -167,16 +165,6 @@ var main = function(){
         canvas.addEventListener('mousemove', mouseMove.bind(this, canvas, game_pieces, game));
 
         window.addEventListener("resize", function(){
-            if (window.innerHeight < window.innerWidth){
-                canvas.height = window.innerHeight - 20;
-                canvas.width = canvas.height;
-            } else {
-                canvas.width = window.innerWidth - 20;
-                canvas.height = canvas.width;
-            }
-
-            board_size = canvas.height;
-            square_size = board_size / 10;
             drawing.drawBoard();
             drawing.drawPieces(game_pieces);
         }, true);

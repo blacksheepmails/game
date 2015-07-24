@@ -5,6 +5,15 @@ var Drawing = function(ctx){
 	};
 
 	var drawBoard = function() {
+		if (window.innerHeight < window.innerWidth){
+            canvas.height = window.innerHeight - 20;
+            canvas.width = canvas.height;
+        } else {
+            canvas.width = window.innerWidth - 20;
+            canvas.height = canvas.width;
+        }
+        board_size = canvas.height;
+        square_size = board_size / 10;
 
 		var color = 'red';
 		for (var i = 1; i <= 8; i += 1) {

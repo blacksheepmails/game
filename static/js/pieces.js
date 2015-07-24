@@ -391,14 +391,16 @@ var PieceNamespace = function(game_pieces){
                 this.highlight();
             }
 
-            var sizes = this.fittedSizeOfImage();
+            this.ctx.drawImage(this.img, this.i * square_size, this.j * square_size, square_size, square_size);
+
+            //var sizes = this.fittedSizeOfImage();
 
             //TODO : remove magic numbers
-            this.ctx.drawImage(this.img, 
-                this.i * square_size + (square_size / 6),
-                this.j * square_size,
-                sizes.x + square_size / 8,
-                sizes.y);
+            //this.ctx.drawImage(this.img, 
+            //    this.i * square_size + (square_size / 6),
+            //    this.j * square_size,
+            //    sizes.x + square_size / 8,
+            //    sizes.y);
         }
     }
 
