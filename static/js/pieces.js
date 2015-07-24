@@ -1,4 +1,4 @@
-var PieceNamespace = function(game_pieces){
+var PieceNamespace = function(game_pieces, captured_pieces){
 
     CheckersKingPiece = function(ctx, i, j, img, player) {
         GamePiece.call(this, ctx, i, j, img, player);
@@ -421,32 +421,55 @@ var PieceNamespace = function(game_pieces){
         this.captured = piece;
         this.go = function() {
             game_pieces.splice(game_pieces.indexOf(piece), 1);
+            captured_pieces.push(piece);
+
+        }
+        this.inverse = function() {
+            captured_pieces.splice(captured_pieces.indexOf(piece), 1);
+            game_pieces.push(piece);
         }
     }
     function Move(piece, i, j) {
+        var old_i = piece.i;
+        var old_j = piece.j;
         this.moved = piece;
         this.go = function() {
             piece.i = i;
             piece.j = j;
         }
+        this.inverse = function() {
+            piece.i = old_i;
+            piece.j = old_j;
+        }
     }
 
     function KingMe(piece, move) {
+        var checkerImg = (piece.color == 'black') ? img.blackCheckerKing : img.redCheckerKing;
+        this.king = new CheckersKingPiece(piece.ctx, move.i, move.j, checkerImg, piece.player);
         this.go = function() {
-            var checkerImg = (piece.color == 'black') ? img.blackCheckerKing : img.redCheckerKing;
-            game_pieces.splice(game_pieces.indexOf(piece), 1, new CheckersKingPiece(piece.ctx, move.i, move.j, checkerImg, piece.player));
+            game_pieces.splice(game_pieces.indexOf(piece), 1, this.king);
+        }
+        this.inverse = function() {
+            game_pieces.splice(game_pieces.indexOf(this.king), 1, piece);
         }
     }
 
     function EvolvePawn(piece, move) {
+        var queenImg = (piece.color == 'black') ? img.blackQueen : img.whiteQueen;
+        this.queen = new ChessQueen(piece.ctx, move.i, move.j, queenImg, piece.player);
         this.go = function() {
-            var queenImg = (piece.color == 'black') ? img.blackQueen : img.whiteQueen;
-            game_pieces.splice(game_pieces.indexOf(piece), 1, new ChessQueen(piece.ctx, move.i, move.j, queenImg, piece.player));
+            game_pieces.splice(game_pieces.indexOf(piece), 1, this.queen);
+        }
+        this.inverse = function() {
+            game_pieces.splice(game_pieces.indexOf(this.queen), 1, piece);
         }
     }
 
     SideEffect.prototype = {
         go: function(){
+            return;
+        },
+        inverse: function(){
             return;
         }
     }

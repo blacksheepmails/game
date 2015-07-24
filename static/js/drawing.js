@@ -45,6 +45,12 @@ var Drawing = function(ctx){
 		}
 	}
 
+	var drawCaptured = function(pieces) {
+		black = pieces.filter(function(a){return a.color === 'black'});
+		not_black = pieces.filter(function(a){return a.color != 'black'});
+
+	}
+
 	return {
 		drawSquare: drawSquare,
 		drawBoard: drawBoard,

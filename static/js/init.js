@@ -25,9 +25,10 @@ var setupCheckersPieces = function(game_pieces, Red, Black){
 function initCheckers(ctx, simple) {
 
     var game_pieces = [];
+    var captured_pieces = [];
     var player1 = new CheckersPlayer('red', game_pieces);
     var player2 = new CheckersPlayer('black', game_pieces)
-    var pieceNamespace = PieceNamespace(game_pieces);
+    var pieceNamespace = PieceNamespace(game_pieces, captured_pieces);
 
     var RedChecker = function(i, j){
         return new pieceNamespace.CheckersPiece(ctx, i, j, img.redChecker, player1);
@@ -45,6 +46,7 @@ function initCheckers(ctx, simple) {
     drawing.drawPieces(game_pieces);
 
     return {
+        captured_pieces: captured_pieces,
         game_pieces: game_pieces,
         pieceNamespace: pieceNamespace,
         player1: player1,
@@ -55,7 +57,8 @@ function initCheckers(ctx, simple) {
 function initChess(ctx, simple) {
 
     var game_pieces = [];
-    var pieceNamespace = PieceNamespace(game_pieces);
+    var captured_pieces = [];
+    var pieceNamespace = PieceNamespace(game_pieces, captured_pieces);
     var player1 = new ChessPlayer('white', game_pieces, pieceNamespace);
     var player2 = new ChessPlayer('black', game_pieces, pieceNamespace);
 
@@ -99,6 +102,7 @@ function initChess(ctx, simple) {
 
 
     return {
+        captured_pieces: captured_pieces,
         game_pieces: game_pieces,
         pieceNamespace: pieceNamespace,
         player1: player1,
