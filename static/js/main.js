@@ -131,7 +131,6 @@ var main = function(){
     $.get("/get_game_options", function(options) {
         ctx.font = '20px Arial';
         var init
-        console.log(options);
         if (options.setup == 'simple_checkers') init = initCheckers(ctx,true);
         else if (options.setup == 'checkers') init = initCheckers(ctx);
         else if (options.setup == 'simple_chess') init = initChess(ctx,true);
@@ -160,7 +159,8 @@ var main = function(){
         game = new game(game_pieces, player1, player2, pieceNamespace, myPlayer);
 
         drawing.drawPieces(game_pieces);
-
+        game.updatePossibleMoves();
+        
         canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces, game);
         canvas.addEventListener('mousemove', mouseMove.bind(this, canvas, game_pieces, game));
 
@@ -181,7 +181,6 @@ var main = function(){
         socket.on('server_to_client_move', function(move) {
             if (move === '' || move === null) return;
             if (game.lastMove == null || move.time !== game.lastMove.time) {
-                console.log(move);
                 game.makeMove(move.from, move.to);
             }
         });

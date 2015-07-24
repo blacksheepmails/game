@@ -32,7 +32,7 @@ CheckersPlayer.prototype = Object.create(Player.prototype);
 CheckersPlayer.prototype.canJump = function() {
     var myPieces = this.getMyPieces();
     for (var c = 0; c < myPieces.length; c++) {
-        if (myPieces[c].hasMoreJumps()) return true;
+        if (myPieces[c].hasJumps()) return true;
     }
     return false;
 }

@@ -12,6 +12,8 @@ function GameStateMachine(game_pieces, player1, player2, pieceNamespace, myPlaye
 
 GameStateMachine.prototype = {
     deactivate: function(game_piece) {
+        console.log('deactivate');
+
         if (typeof game_piece === "undefined") game_piece = this.activePiece;   
         game_piece.isActive = false;
         drawing.drawBoard();
@@ -67,14 +69,16 @@ GameStateMachine.prototype = {
         for (var c = 0; c < this.game_pieces.length; c++) {
             this.game_pieces[c].calcPossibleMoves();
         }
+        if (this.activePiece != null) this.activePiece.calcPossibleMoves();
     },
     move: function(piece, square) {
-        piece.getMove(square.i, square.j).sideEffects.map(function(x) {x.go();});
+        piece.getMove(square.i, square.j).sideEffects.map(function(x) {
+            console.log(x); x.go();});
         piece.i = square.i;
         piece.j = square.j;
+        this.updatePossibleMoves();
     },
     makeMove: function(from, to) {
-        this.updatePossibleMoves();
         var piece = getGamePiece(this.game_pieces, from.i, from.j);
         this.move(piece, to);
         this.toggleTurn();

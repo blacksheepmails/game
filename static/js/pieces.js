@@ -273,7 +273,7 @@ var PieceNamespace = function(game_pieces){
         calcPossibleMoves: function() {
             return [];
         },
-        hasMoreJumps: function() {
+        hasJumps: function() {
             var moves = this.possibleMoves;
             for (var c = 0; c < moves.length; c++) {
                 for (var d = 0; d < moves[c].sideEffects.length; d ++) {
@@ -290,6 +290,8 @@ var PieceNamespace = function(game_pieces){
                 if (moves[c].i == i && moves[c].j == j) {
                     for (var d = 0; d < moves[c].sideEffects.length; d ++) {
                         if (moves[c].sideEffects[d] instanceof Capture) {
+                            console.log(i.toString() + ', ' + j.toString() + ' is a valid jump');
+
                             return true;
                         }
                     }

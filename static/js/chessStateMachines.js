@@ -16,7 +16,6 @@ function NormalChessStateMachine(game_pieces, player1, player2, pieceNamespace, 
             return;
         }
         var move = null;
-        this.updatePossibleMoves();
         var isValidMove = this.isValidMove(this.activePiece, square.i, square.j);
         
         if (isValidMove){
