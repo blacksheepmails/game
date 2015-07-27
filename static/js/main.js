@@ -164,19 +164,17 @@ var main = function(){
         canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces, game);
         canvas.addEventListener('mousemove', mouseMove.bind(this, canvas, game_pieces, game));
 
+        document.onkeydown = function(e) {
+            e = e? e : window.event;
+            if (e.keyCode == '37') socket.emit('undo_ask', '');
+        }
+
         window.addEventListener("resize", function(){
             drawing.drawBoard();
             drawing.drawPieces(game_pieces);
         }, true);
 
-
-
-
-
-
         socket.emit('start_game', '');
-
-
         
         socket.on('server_to_client_move', function(move) {
             if (move === '' || move === null) return;
@@ -185,11 +183,16 @@ var main = function(){
             }
         });
 
+        socket.on('undo_answer', function(ans) {
+            if (ans === 'yes') game.undo();
+            else console.log('undo rejected');
+        })
 
-
-
-
-
+        socket.on('undo_ask', function(name) {
+            var ans = window.confirm('player '+ name +' is a cheat and wants to undo. will you allow it?');
+            if (ans == true) socket.emit('undo_answer', 'yes');
+            else socket.emit('undo_answer', 'no');
+        })
 
 
         /*setInterval(function(){

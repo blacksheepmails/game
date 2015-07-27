@@ -8,14 +8,13 @@ function GameStateMachine(game_pieces, player1, player2, pieceNamespace, myPlaye
     this.activePiece = null;
     this.myPlayer = myPlayer;
     this.lastMove = null;
+    this.log = [];
 }
 
 GameStateMachine.prototype = {
     deactivate: function(game_piece) {
-        console.log('deactivate');
-
         if (typeof game_piece === "undefined") game_piece = this.activePiece;   
-        game_piece.isActive = false;
+        if (game_piece != null) game_piece.isActive = false;
         drawing.drawBoard();
         drawing.drawPieces(this.game_pieces);
         this.activePiece = null;  
@@ -72,17 +71,28 @@ GameStateMachine.prototype = {
         if (this.activePiece != null) this.activePiece.calcPossibleMoves();
     },
     move: function(piece, square) {
-        piece.getMove(square.i, square.j).sideEffects.map(function(x) {
-            console.log(x); x.go();});
+        var move = piece.getMove(square.i, square.j);
+        this.log.push({piece: piece, from: {i: piece.i, j: piece.j}, move: move, turn: this.whoseTurn});
+        move.sideEffects.map(function(x) {x.go()});
         piece.i = square.i;
         piece.j = square.j;
         this.updatePossibleMoves();
     },
+
     makeMove: function(from, to) {
         var piece = getGamePiece(this.game_pieces, from.i, from.j);
         this.move(piece, to);
         this.toggleTurn();
         this.deactivate(piece);
+    },
+    undo: function() {
+        var log = this.log.pop();
+        log.piece.i = log.from.i;
+        log.piece.j = log.from.j;
+        log.move.sideEffects.map(function(x) {x.inverse()});
+        this.whoseTurn = log.turn;
+        this.updatePossibleMoves();
+        this.deactivate();
     },
     makeMoveObject: function(square) {
         return {from: {i: this.activePiece.i, j: this.activePiece.j}, 
