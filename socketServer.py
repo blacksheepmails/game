@@ -5,7 +5,6 @@ from flask import jsonify, redirect, url_for, escape
 from flask import request,  session 
 from flask import g as Globals
 from flask.ext.socketio import SocketIO, emit, join_room, leave_room
-from sets import Set
 
 app = Flask(__name__)
 #app.config['SECRET_KEY'] = 'secret!'
@@ -91,23 +90,21 @@ def logout():
 def received_move(move):
     if session['game'] in app.undoLog:
         undo_tell('no')
-
-	emit('server_to_client_move', move, room = session['game'])
-	app.log[session['game']].append(move)
+    emit('server_to_client_move', move, room = session['game'])
+    #app.log[session['game']].append(move)
     db.rpush(session['game'], str(move))
 
 @socketio.on('start_game', namespace='/game_data')
 def start_game(stuff):
-	if 'username' in session:
-		join_room(session['game'])
-        #for move in app.log[session['game']]:
-        for move in db.lrange(session['game'], 0, -1):
-			emit('server_to_client_move', ast.literal_eval(move))
+    join_room(session['game'])
+    #for move in app.log[session['game']]:
+    for move in db.lrange(session['game'], 0, -1):
+        emit('server_to_client_move', ast.literal_eval(move))
 
 @socketio.on('undo_ask', namespace='/game_data')
 def undo_ask(stuff):
     emit('undo_ask', session['username'], room = session['game'])
-    app.undoLog[session['game']] = Set([session['username']])
+    app.undoLog[session['game']] = set([session['username']])
 
 @socketio.on('undo_answer', namespace='/game_data')
 def undo_answer(ans):

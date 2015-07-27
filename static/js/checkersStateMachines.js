@@ -8,9 +8,7 @@ function NormalCheckersStateMachine(game_pieces, player1, player2, pieceNamespac
     CheckersStateMachine.call(this, game_pieces, player1, player2, pieceNamespace, myPlayer);
 
     this.shouldActivate = function(game_piece) {
-        if (game_piece == null) return false;
-        if (this.isTurn(game_piece.player) && this.isTurn(this.myPlayer)) {
-
+        if (GameStateMachine.prototype.shouldActivate.call(this, game_piece)) {
             if (game_piece.player.canJump()) {
                 return game_piece.hasJumps();
             } else {
@@ -71,7 +69,7 @@ function WeirdCheckersStateMachine(game_pieces, player1, player2, pieceNamespace
     CheckersStateMachine.call(this,game_pieces, player1, player2, pieceNamespace, myPlayer);
 
     this.shouldActivate = function(game_piece) {
-        if (game_piece == null) return false;
+        if (! GameStateMachine.prototype.shouldActivate.call(this, game_piece)) return false;
         if (this.myPlayer.indexOf(game_piece.player) == -1) return false;
         if (this.isTurnStrict(game_piece.player)) return true;
         if (game_piece === this.forcedPiece) return true;

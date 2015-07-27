@@ -73,22 +73,7 @@ function mouseDown(ctx, canvas, game_pieces, game, e) {
     if (square != null) {
         var move = game.next(square);
         if (move != null) {
-
-
-
-            
             socket.emit('client_to_server_move', move);
-                
-
-
-            /*
-            $.ajax({
-                type: "POST",
-                url: "/post_move",
-                data: JSON.stringify(move),
-                dataType: "json",
-                contentType: "application/json"
-            });*/
         }
     }    
 };
@@ -166,7 +151,9 @@ var main = function(){
 
         document.onkeydown = function(e) {
             e = e? e : window.event;
-            if (e.keyCode == '37') socket.emit('undo_ask', '');
+            if (e.keyCode == '37') game.stepBack();
+            if (e.keyCode == '39') game.stepForward();
+            if (e.which === 90 && e.ctrlKey) socket.emit('undo_ask', '');
         }
 
         window.addEventListener("resize", function(){
@@ -179,20 +166,24 @@ var main = function(){
         socket.on('server_to_client_move', function(move) {
             if (move === '' || move === null) return;
             if (game.lastMove == null || move.time !== game.lastMove.time) {
+                game.fastForward();
                 game.makeMove(move.from, move.to);
             }
         });
 
         socket.on('undo_answer', function(ans) {
-            if (ans === 'yes') game.undo();
+            if (ans === 'yes') {
+                game.fastForward();
+                game.undo();
+            }
             else console.log('undo rejected');
-        })
+        });
 
         socket.on('undo_ask', function(name) {
             var ans = window.confirm('player '+ name +' is a cheat and wants to undo. will you allow it?');
             if (ans == true) socket.emit('undo_answer', 'yes');
             else socket.emit('undo_answer', 'no');
-        })
+        });
 
 
         /*setInterval(function(){

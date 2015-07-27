@@ -9,6 +9,7 @@ function GameStateMachine(game_pieces, player1, player2, pieceNamespace, myPlaye
     this.myPlayer = myPlayer;
     this.lastMove = null;
     this.log = [];
+    this.stepPointer = null;
 }
 
 GameStateMachine.prototype = {
@@ -56,6 +57,7 @@ GameStateMachine.prototype = {
         }
     },
     shouldActivate: function(game_piece) {
+        if (this.stepPointer != null) return false;
         return (game_piece != null && this.isTurn(game_piece.player) && this.isTurn(this.myPlayer));
     },
     isGameOver: function() {
@@ -85,14 +87,45 @@ GameStateMachine.prototype = {
         this.toggleTurn();
         this.deactivate(piece);
     },
-    undo: function() {
-        var log = this.log.pop();
+    moveBack: function(log) {
         log.piece.i = log.from.i;
         log.piece.j = log.from.j;
         log.move.sideEffects.map(function(x) {x.inverse()});
-        this.whoseTurn = log.turn;
         this.updatePossibleMoves();
         this.deactivate();
+    },
+    moveForward: function(log) {
+        log.piece.i = log.move.i;
+        log.piece.j = log.move.j;
+        log.move.sideEffects.map(function(x) {x.go()});
+        this.updatePossibleMoves();
+        this.deactivate();
+    },
+    undo: function() {
+        var log = this.log.pop();
+        this.moveBack(log);
+        this.whoseTurn = log.turn;
+    },
+    stepBack: function() {
+        if (this.stepPointer == null) this.stepPointer = this.log.length;
+        if (this.stepPointer <= 0) return;
+        this.stepPointer -= 1;
+        var log = this.log[this.stepPointer];
+        this.moveBack(log);
+    },
+    stepForward: function() {
+        if (this.stepPointer == null || this.stepPointer >= this.log.length) return;
+        var log = this.log[this.stepPointer];
+        this.moveForward(log);
+        this.stepPointer += 1;
+        if (this.stepPointer == this.log.length) this.stepPointer = null;
+    },
+    fastForward: function() {
+        console.log(this.stepPointer);
+        while (this.stepPointer != null) {
+            console.log('fastforwarding');
+            this.stepForward();
+        }
     },
     makeMoveObject: function(square) {
         return {from: {i: this.activePiece.i, j: this.activePiece.j}, 
