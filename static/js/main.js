@@ -1,4 +1,4 @@
-var socket = io.connect('http://localhost:5000/game_data');
+var socket = io.connect('/game_data');
 
 var canvas = document.getElementById("myCanvas");
 
