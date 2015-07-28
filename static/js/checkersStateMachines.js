@@ -1,11 +1,11 @@
 
-function CheckersStateMachine(game_pieces, player1, player2, pieceNamespace, myPlayer) {
-    GameStateMachine.call(this, game_pieces, player1, player2, pieceNamespace, myPlayer);
+function CheckersStateMachine(gamePieces, player1, player2, pieceNamespace, myPlayer) {
+    GameStateMachine.call(this, gamePieces, player1, player2, pieceNamespace, myPlayer);
     this.forcedPiece = null;
 }
 
-function NormalCheckersStateMachine(game_pieces, player1, player2, pieceNamespace, myPlayer) {
-    CheckersStateMachine.call(this, game_pieces, player1, player2, pieceNamespace, myPlayer);
+function NormalCheckersStateMachine(gamePieces, player1, player2, pieceNamespace, myPlayer) {
+    CheckersStateMachine.call(this, gamePieces, player1, player2, pieceNamespace, myPlayer);
 
     this.shouldActivate = function(game_piece) {
         if (GameStateMachine.prototype.shouldActivate.call(this, game_piece)) {
@@ -20,7 +20,7 @@ function NormalCheckersStateMachine(game_pieces, player1, player2, pieceNamespac
 
     this.next = function(square) {
         if (this.activePiece == null) {
-            var game_piece = getGamePiece(this.game_pieces, square.i, square.j);
+            var game_piece = getGamePiece(this.gamePieces, square.i, square.j);
             if (this.shouldActivate(game_piece)) this.activate(game_piece);
             return;
         }
@@ -50,7 +50,7 @@ function NormalCheckersStateMachine(game_pieces, player1, player2, pieceNamespac
             if (isJump && this.activePiece.hasJumps()) {
                 this.forcedPiece = this.activePiece;
                 drawing.drawBoard();
-                drawing.drawPieces(this.game_pieces);
+                drawing.drawPieces(this.gamePieces);
             } else {
                 this.toggleTurn();
                 this.forcedPiece = null;
@@ -65,8 +65,8 @@ function NormalCheckersStateMachine(game_pieces, player1, player2, pieceNamespac
     }
 }
 
-function WeirdCheckersStateMachine(game_pieces, player1, player2, pieceNamespace, myPlayer) {
-    CheckersStateMachine.call(this,game_pieces, player1, player2, pieceNamespace, myPlayer);
+function WeirdCheckersStateMachine(gamePieces, player1, player2, pieceNamespace, myPlayer) {
+    CheckersStateMachine.call(this,gamePieces, player1, player2, pieceNamespace, myPlayer);
 
     this.shouldActivate = function(game_piece) {
         if (! GameStateMachine.prototype.shouldActivate.call(this, game_piece)) return false;
@@ -79,7 +79,7 @@ function WeirdCheckersStateMachine(game_pieces, player1, player2, pieceNamespace
 
     this.next = function(square) {
         if (this.activePiece == null) {
-            var game_piece = getGamePiece(this.game_pieces, square.i, square.j);
+            var game_piece = getGamePiece(this.gamePieces, square.i, square.j);
             if (this.shouldActivate(game_piece)) this.activate(game_piece);
             return;
         }
@@ -106,7 +106,7 @@ function WeirdCheckersStateMachine(game_pieces, player1, player2, pieceNamespace
                 this.whoseTurn = 'both';
                 this.forcedPiece = this.activePiece;
                 drawing.drawBoard();
-                drawing.drawPieces(this.game_pieces);
+                drawing.drawPieces(this.gamePieces);
             } else {
                 this.toggleTurn();
                 this.forcedPiece = null;
@@ -124,10 +124,10 @@ function WeirdCheckersStateMachine(game_pieces, player1, player2, pieceNamespace
 
 CheckersStateMachine.prototype = Object.create(GameStateMachine.prototype);
 CheckersStateMachine.prototype.isGameOver = function() {
-    if (this.game_pieces.length < 2) { return true; }
-    var colour = this.game_pieces[0].color;
-    for (var i = 0; i < this.game_pieces.length; i++){
-        if (this.game_pieces[i].color !== colour) return false;
+    if (this.gamePieces.length < 2) { return true; }
+    var colour = this.gamePieces[0].color;
+    for (var i = 0; i < this.gamePieces.length; i++){
+        if (this.gamePieces[i].color !== colour) return false;
     }
     return true;
 };
@@ -137,7 +137,7 @@ CheckersStateMachine.prototype.isGameOver = function() {
 
 WeirdCheckersStateMachine.prototype = Object.create(CheckersStateMachine.prototype);
 WeirdCheckersStateMachine.prototype.makeMove = function(from, to) {
-    var piece = getGamePiece(this.game_pieces, from.i, from.j);
+    var piece = getGamePiece(this.gamePieces, from.i, from.j);
     var isJump = piece.isValidJump(to.i, to.j);
 
     this.move(piece, to);
@@ -145,7 +145,7 @@ WeirdCheckersStateMachine.prototype.makeMove = function(from, to) {
         this.whoseTurn = 'both';
         this.forcedPiece = piece;
         drawing.drawBoard();
-        drawing.drawPieces(this.game_pieces);
+        drawing.drawPieces(this.gamePieces);
     } else {
         this.toggleTurn();
         this.forcedPiece = null;
@@ -157,14 +157,14 @@ WeirdCheckersStateMachine.prototype.makeMove = function(from, to) {
 
 NormalCheckersStateMachine.prototype = Object.create(CheckersStateMachine.prototype);
 NormalCheckersStateMachine.prototype.makeMove = function(from, to) {
-    var piece = getGamePiece(this.game_pieces, from.i, from.j);
+    var piece = getGamePiece(this.gamePieces, from.i, from.j);
     var isJump = piece.isValidJump(to.i, to.j);
 
     this.move(piece, to);
     if (isJump && piece.hasJumps()) {
         this.forcedPiece = piece;
         drawing.drawBoard();
-        drawing.drawPieces(this.game_pieces);
+        drawing.drawPieces(this.gamePieces);
     } else {
         this.toggleTurn();
         this.forcedPiece = null;
