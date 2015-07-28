@@ -11,9 +11,9 @@ function NormalCheckersStateMachine(gamePieces, player1, player2, pieceNamespace
         if (GameStateMachine.prototype.shouldActivate.call(this, game_piece)) {
             if (game_piece.player.canJump()) {
                 return game_piece.hasJumps();
-            } else {
-                return true;
-            }
+            } 
+
+            return true;
         }
         return false;
     }
@@ -68,12 +68,12 @@ function NormalCheckersStateMachine(gamePieces, player1, player2, pieceNamespace
 function WeirdCheckersStateMachine(gamePieces, player1, player2, pieceNamespace, myPlayer) {
     CheckersStateMachine.call(this,gamePieces, player1, player2, pieceNamespace, myPlayer);
 
-    this.shouldActivate = function(game_piece) {
-        if (! GameStateMachine.prototype.shouldActivate.call(this, game_piece)) return false;
-        if (this.myPlayer.indexOf(game_piece.player) == -1) return false;
-        if (this.isTurnStrict(game_piece.player)) return true;
-        if (game_piece === this.forcedPiece) return true;
-        if (this.isTurn(game_piece.player) && game_piece.color != this.forcedPiece.color) return true;
+    this.shouldActivate = function(gamePiece) {
+        if (! GameStateMachine.prototype.shouldActivate.call(this, gamePiece)) return false;
+        if (this.myPlayer.indexOf(gamePiece.player) == -1) return false;
+        if (this.isTurnStrict(gamePiece.player)) return true;
+        if (gamePiece === this.forcedPiece) return true;
+        if (this.isTurn(gamePiece.player) && gamePiece.color != this.forcedPiece.color) return true;
         return false;
     }
 
@@ -99,9 +99,11 @@ function WeirdCheckersStateMachine(gamePieces, player1, player2, pieceNamespace,
         }
 
         if (isValidMove){
+
             move = this.makeMoveObject(square);
             this.lastMove = move;
             this.move(this.activePiece, square);
+
             if (isJump && this.activePiece.hasJumps()) {
                 this.whoseTurn = 'both';
                 this.forcedPiece = this.activePiece;
@@ -113,9 +115,11 @@ function WeirdCheckersStateMachine(gamePieces, player1, player2, pieceNamespace,
                 this.deactivate();
             }
         } 
+
         if (this.isGameOver()){
             console.log("Game over!");
         }
+
         return move;
     }
 }
@@ -124,11 +128,14 @@ function WeirdCheckersStateMachine(gamePieces, player1, player2, pieceNamespace,
 
 CheckersStateMachine.prototype = Object.create(GameStateMachine.prototype);
 CheckersStateMachine.prototype.isGameOver = function() {
-    if (this.gamePieces.length < 2) { return true; }
+    if (this.gamePieces.length < 2) return true; 
+
     var colour = this.gamePieces[0].color;
+
     for (var i = 0; i < this.gamePieces.length; i++){
         if (this.gamePieces[i].color !== colour) return false;
     }
+
     return true;
 };
 
