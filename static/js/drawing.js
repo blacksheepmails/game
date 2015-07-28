@@ -60,10 +60,18 @@ var Drawing = function(ctx, canvas){
         squareSize = boardSize / 10;
     };
 
+    var getSettings = function(){
+        return {
+            boardSize :boardSize,
+            squareSize: squareSize
+        };
+    };
+
     return {
         drawSquare: drawSquare,
         drawBoard: drawBoard,
         drawPieces: drawPieces,
-        resize: resize
+        resize: resize,
+        getSettings: getSettings
     };
 };
