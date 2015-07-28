@@ -1,11 +1,11 @@
-function Player(color, game_pieces, pieceNamespace) {
+function Player(color, gamePieces, pieceNamespace) {
     this.color = color;
-    this.game_pieces = game_pieces;
+    this.gamePieces = gamePieces;
     this.pieceNamespace = pieceNamespace;
 }
 
-function ChessPlayer(color, game_pieces, pieceNamespace) {
-    Player.call(this, color, game_pieces, pieceNamespace);
+function ChessPlayer(color, gamePieces, pieceNamespace) {
+    Player.call(this, color, gamePieces, pieceNamespace);
     this.firstRow = (this.color == 'black')? 8 : 1;
     this.lastRow = (this.color == 'black')? 1 : 8;
     this.canCastleSquare2 = true;
@@ -13,18 +13,18 @@ function ChessPlayer(color, game_pieces, pieceNamespace) {
     this.king = null;
 }
 
-function CheckersPlayer(color, game_pieces, pieceNamespace) {
-    Player.call(this, color, game_pieces, pieceNamespace);
+function CheckersPlayer(color, gamePieces, pieceNamespace) {
+    Player.call(this, color, gamePieces, pieceNamespace);
 }
 
 Player.prototype = {
     getMyPieces: function() {
         var equals = function(a) {return a.player === this};
-        return this.game_pieces.filter(equals.bind(this));
+        return this.gamePieces.filter(equals.bind(this));
     },
     getOpponentPieces: function() {
         var unequals = function(a) {return a.player !== this};
-        return this.game_pieces.filter(unequals.bind(this));
+        return this.gamePieces.filter(unequals.bind(this));
     }
 }
 
@@ -42,8 +42,8 @@ CheckersPlayer.prototype.canJump = function() {
 ChessPlayer.prototype = Object.create(Player.prototype);
 ChessPlayer.prototype.setKing = function() {
     var isKing = function(a) {return (a instanceof this.pieceNamespace.ChessKing && a.color === this.color)};
-    this.king = this.game_pieces[
-                    this.game_pieces.map(isKing.bind(this))
+    this.king = this.gamePieces[
+                    this.gamePieces.map(isKing.bind(this))
                         .indexOf(true)];
 }
 ChessPlayer.prototype.getEnemyMoves = function() {
@@ -113,7 +113,7 @@ ChessPlayer.prototype.isValidMove = function(piece, i, j, game) {
     var returnVal = !this.isInCheck()
     piece.i = old_i;
     piece.j = old_j;
-    if (temp != null) this.game_pieces.push(temp);
+    if (temp != null) this.gamePieces.push(temp);
 
     game.updatePossibleMoves();
 
@@ -132,7 +132,7 @@ ChessPlayer.prototype.addCastleMoves = function() {
     if (this.isInCheck()) return;
         
     if (this.canCastleSquare2) {
-        var rook = getGamePiece(this.game_pieces, 1, this.firstRow);
+        var rook = getGamePiece(this.gamePieces, 1, this.firstRow);
         var rookMove = (rook === null)? null : rook.getMove(3, this.firstRow);
         if (rookMove != null && rookMove.sideEffects.length == 0) {
             var middleSquares = [{i: 2, j: this.firstRow},
@@ -145,7 +145,7 @@ ChessPlayer.prototype.addCastleMoves = function() {
         }
     }
     if (this.canCastleSquare6) {
-        var rook = getGamePiece(this.game_pieces, 8, this.firstRow);
+        var rook = getGamePiece(this.gamePieces, 8, this.firstRow);
         var rookMove = (rook === null)? null : rook.getMove(5, this.firstRow);
         if (rookMove != null && rookMove.sideEffects.length == 0) {
             var middleSquares = [{i: 5, j: this.firstRow},
