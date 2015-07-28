@@ -160,8 +160,6 @@ var main = function(){
             drawing.drawBoard();
             drawing.drawPieces(game_pieces);
         }, true);
-
-        socket.emit('start_game', '');
         
         socket.on('server_to_client_move', function(move) {
             if (move === '' || move === null) return;

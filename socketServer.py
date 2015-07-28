@@ -60,13 +60,14 @@ def login():
         session['player'] = request.form['player']
         session['setup'] = request.form['setup']
         session['stateMachine'] = request.form['stateMachine']
-        app.users.append({
+        session['userObject'] = {
             'username': session['username'],
             'game': session['game'],
             'player': session['player'],
             'setup': session['setup'],
             'stateMachine': session['stateMachine']
-        })
+        }
+        app.users.append(session['userObject'])
 
         if session['game'] not in app.log:
             app.log[session['game']] = []
@@ -75,16 +76,19 @@ def login():
 
     return app.send_static_file('views/login.html')
 
-@app.route('/logout')
-def logout():
-	#leave_room(session['game'])
-	if 'username' in session:
-		app.users.remove(session['username'])
-		session.pop('username', None)
 
-	return redirect(url_for('index'))
+@socketio.on('connect', namespace='/game_data')
+def connect():
+    join_room(session['game'])
+    #for move in app.log[session['game']]:
+    for move in db.lrange(session['game'], 0, -1):
+        emit('server_to_client_move', ast.literal_eval(move))
 
-
+@socketio.on('disconnect', namespace='/game_data')
+def disconnect():
+    app.users.remove(session['userObject'])
+    leave_room(session['game'])
+    print('Client disconnected')
 
 @socketio.on('client_to_server_move', namespace='/game_data')
 def received_move(move):
@@ -93,13 +97,6 @@ def received_move(move):
     emit('server_to_client_move', move, room = session['game'])
     #app.log[session['game']].append(move)
     db.rpush(session['game'], str(move))
-
-@socketio.on('start_game', namespace='/game_data')
-def start_game(stuff):
-    join_room(session['game'])
-    #for move in app.log[session['game']]:
-    for move in db.lrange(session['game'], 0, -1):
-        emit('server_to_client_move', ast.literal_eval(move))
 
 @socketio.on('undo_ask', namespace='/game_data')
 def undo_ask(stuff):
