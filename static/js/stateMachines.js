@@ -145,7 +145,6 @@ GameStateMachine.prototype = {
             return;
         }
         var move = null;
-        this.updatePossibleMoves();
         var isValidMove = this.activePiece.isValidMove(square.i, square.j);
         
         if (isValidMove){

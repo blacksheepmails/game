@@ -183,7 +183,11 @@ var main = function(){
             else socket.emit('undo_answer', 'no');
         });
 
-
+        setInterval(function(){
+            if (!socket.socket.connected) {
+                window.location.href="/closed_connection";
+            }
+        }, 1000);
         /*setInterval(function(){
             $.get("/get_move", function(move) {
                 if (move === '' || move === null) return;

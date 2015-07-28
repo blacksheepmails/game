@@ -500,11 +500,11 @@ var PieceNamespace = function(game_pieces, captured_pieces){
             if (this.isFirstTime) {
                 document.getElementById("evolve-submit").addEventListener("click", submit.bind(this));
                 toggleOverlay();
+                this.isFirstTime = false;
             } else game_pieces.splice(game_pieces.indexOf(piece), 1, this.evolved);
 
         }
         this.inverse = function() {
-            this.isFirstTime = false;
             game_pieces.splice(game_pieces.indexOf(this.evolved), 1, piece);
         }
     }
