@@ -28,7 +28,7 @@ function initCheckers(ctx, simple) {
     var captured_pieces = [];
     var player1 = new CheckersPlayer('red', game_pieces);
     var player2 = new CheckersPlayer('black', game_pieces)
-    var pieceNamespace = PieceNamespace(game_pieces, captured_pieces);
+    var pieceNamespace = PieceNamespace(game_pieces, captured_pieces, drawing);
 
     var RedChecker = function(i, j){
         return new pieceNamespace.CheckersPiece(ctx, i, j, player1);
@@ -58,7 +58,7 @@ function initChess(ctx, simple) {
 
     var game_pieces = [];
     var captured_pieces = [];
-    var pieceNamespace = PieceNamespace(game_pieces, captured_pieces);
+    var pieceNamespace = PieceNamespace(game_pieces, captured_pieces, drawing);
     var player1 = new ChessPlayer('white', game_pieces, pieceNamespace);
     var player2 = new ChessPlayer('black', game_pieces, pieceNamespace);
 
