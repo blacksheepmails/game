@@ -2,7 +2,7 @@ html, body {
 	height:100%;
 }
 
-#overlay {
+.overlay {
      visibility: hidden;
      position: absolute;
      left: 0px;
@@ -13,7 +13,7 @@ html, body {
      z-index: 1000;
 }
 
-#overlay div {
+.overlay div {
      width:300px;
      margin: 100px auto;
      background-color: green;
@@ -22,6 +22,6 @@ html, body {
      text-align:center;
 }
 
-#pieces {
+.pieces {
      display: none;
 }
