@@ -457,21 +457,12 @@ var PieceNamespace = function(gamePieces, capturedPieces, drawing){
             if (this.isFirstTime) {
                 document.getElementById("evolve-submit").addEventListener("click", submit.bind(this));
                 toggleOverlay();
-<<<<<<< HEAD
                 this.isFirstTime = false;
             } else game_pieces.splice(game_pieces.indexOf(piece), 1, this.evolved);
 
         }
         this.inverse = function() {
             game_pieces.splice(game_pieces.indexOf(this.evolved), 1, piece);
-=======
-            } else gamePieces.splice(gamePieces.indexOf(piece), 1, this.evolved);
-
-        }
-        this.inverse = function() {
-            this.isFirstTime = false;
-            gamePieces.splice(gamePieces.indexOf(this.evolved), 1, piece);
->>>>>>> d73fdba6421fd4c62eb3eed32a0f49b68674b3c1
         }
     }
 
