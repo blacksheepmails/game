@@ -6,7 +6,7 @@ var board_size;
 var square_size;
 
 var ctx = canvas.getContext("2d");
-var drawing = Drawing(ctx);
+var drawing = Drawing(ctx, canvas);
 var img = new Img();
 
 var date = new Date();
@@ -112,6 +112,8 @@ var mouseMove = function(canvas, game_pieces, myPlayer, e){
 };
 
 var main = function(){
+    
+    drawing.resize();
 
     $.get("/get_game_options", function(options) {
         ctx.font = '20px Arial';
@@ -157,6 +159,7 @@ var main = function(){
         }
 
         window.addEventListener("resize", function(){
+            drawing.resize();
             drawing.drawBoard();
             drawing.drawPieces(game_pieces);
         }, true);
