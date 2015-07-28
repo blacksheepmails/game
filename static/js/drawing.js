@@ -54,13 +54,13 @@ var Drawing = function(ctx, canvas){
     };
 
     var drawPiece = function(piece) {
-        if (piece.isActive()) highlight(piece.i, piece.j);
+        if (piece.isActive) highlight(piece.i, piece.j);
 
         ctx.drawImage(piece.img, piece.i * squareSize, piece.j * squareSize, squareSize, squareSize);
     };
 
 
-    var fittedSizeOfImage: function(img){
+    var fittedSizeOfImage = function(img){
         var x = img.width;
         var y = img.height;
 
@@ -110,6 +110,7 @@ var Drawing = function(ctx, canvas){
         drawSquare: drawSquare,
         drawBoard: drawBoard,
         drawPieces: drawPieces,
+        drawPiece: drawPiece,
         resize: resize,
         getSettings: getSettings
     };
