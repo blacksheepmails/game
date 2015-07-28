@@ -1,11 +1,11 @@
-var PieceNamespace = function(game_pieces, captured_pieces, drawing){
+var PieceNamespace = function(gamePieces, capturedPieces, drawing){
 
     CheckersKingPiece = function(ctx, i, j, player) {
         var image = (player.color == 'black') ? img.blackCheckerKing : img.redCheckerKing;
         GamePiece.call(this, ctx, i, j, image, player);
         
         this.calcPossibleMoves = function() {
-            var getPiece = getGamePiece.bind(this, game_pieces);
+            var getPiece = getGamePiece.bind(this, gamePieces);
             var moves = [];
 
             for (var i_dir = -1; i_dir <= 1; i_dir += 2) {
@@ -42,7 +42,7 @@ var PieceNamespace = function(game_pieces, captured_pieces, drawing){
         GamePiece.call(this, ctx, i, j, image, player);
 
         this.calcPossibleMoves = function() {
-            var getPiece = getGamePiece.bind(this, game_pieces);
+            var getPiece = getGamePiece.bind(this, gamePieces);
 
             var moves = [];
             var j_dir = (this.color == 'black')? -1: 1;
@@ -83,7 +83,7 @@ var PieceNamespace = function(game_pieces, captured_pieces, drawing){
         GamePiece.call(this, ctx, i, j, image, player);
 
         this.calcPossibleMoves = function() {
-            var getPiece = getGamePiece.bind(this, game_pieces);
+            var getPiece = getGamePiece.bind(this, gamePieces);
             var moves = [];
             var attacks = [];
             var j_dir = (this.color == 'black')? -1: 1;
@@ -158,7 +158,7 @@ var PieceNamespace = function(game_pieces, captured_pieces, drawing){
         GamePiece.call(this, ctx, i, j, image, player);
 
         this.calcPossibleMoves = function() {
-            var getPiece = getGamePiece.bind(this, game_pieces);
+            var getPiece = getGamePiece.bind(this, gamePieces);
             var moves = [];
             var jumps = [{i: -2, j: -1},
                          {i: -2, j: 1},
@@ -239,7 +239,7 @@ var PieceNamespace = function(game_pieces, captured_pieces, drawing){
         GamePiece.call(this, ctx, i, j, image, player);
 
         this.calcPossibleMoves = function() {
-            var getPiece = getGamePiece.bind(this, game_pieces);
+            var getPiece = getGamePiece.bind(this, gamePieces);
             var moves = [];
             for (i_dir = -1; i_dir <= 1; i_dir +=1) {
                 for (j_dir = -1; j_dir <= 1; j_dir +=1) {
@@ -320,7 +320,7 @@ var PieceNamespace = function(game_pieces, captured_pieces, drawing){
             return false;
         },
         extend: function(moves, inc) {
-            var getPiece = getGamePiece.bind(this, game_pieces);
+            var getPiece = getGamePiece.bind(this, gamePieces);
             var c = 1;
             while (this.inRange(this.i + c*inc.i, this.j + c*inc.j)) {
                 var piece = getPiece(this.i + c*inc.i, this.j + c*inc.j);
@@ -386,13 +386,13 @@ var PieceNamespace = function(game_pieces, captured_pieces, drawing){
     function Capture(piece) {
         this.captured = piece;
         this.go = function() {
-            game_pieces.splice(game_pieces.indexOf(piece), 1);
-            captured_pieces.push(piece);
+            gamePieces.splice(gamePieces.indexOf(piece), 1);
+            capturedPieces.push(piece);
 
         }
         this.inverse = function() {
-            captured_pieces.splice(captured_pieces.indexOf(piece), 1);
-            game_pieces.push(piece);
+            capturedPieces.splice(capturedPieces.indexOf(piece), 1);
+            gamePieces.push(piece);
         }
     }
     function Move(piece, i, j) {
@@ -413,10 +413,10 @@ var PieceNamespace = function(game_pieces, captured_pieces, drawing){
         var checkerImg = (piece.color == 'black') ? img.blackCheckerKing : img.redCheckerKing;
         this.king = new CheckersKingPiece(piece.ctx, move.i, move.j, checkerImg, piece.player);
         this.go = function() {
-            game_pieces.splice(game_pieces.indexOf(piece), 1, this.king);
+            gamePieces.splice(gamePieces.indexOf(piece), 1, this.king);
         }
         this.inverse = function() {
-            game_pieces.splice(game_pieces.indexOf(this.king), 1, piece);
+            gamePieces.splice(gamePieces.indexOf(this.king), 1, piece);
         }
     }
 
@@ -448,21 +448,21 @@ var PieceNamespace = function(game_pieces, captured_pieces, drawing){
                 }
             }
 
-            game_pieces.splice(game_pieces.indexOf(piece), 1, this.evolved);
+            gamePieces.splice(gamePieces.indexOf(piece), 1, this.evolved);
             toggleOverlay();
             drawing.drawBoard();
-            drawing.drawPieces(game_pieces);
+            drawing.drawPieces(gamePieces);
         }
         this.go = function() {
             if (this.isFirstTime) {
                 document.getElementById("evolve-submit").addEventListener("click", submit.bind(this));
                 toggleOverlay();
-            } else game_pieces.splice(game_pieces.indexOf(piece), 1, this.evolved);
+            } else gamePieces.splice(gamePieces.indexOf(piece), 1, this.evolved);
 
         }
         this.inverse = function() {
             this.isFirstTime = false;
-            game_pieces.splice(game_pieces.indexOf(this.evolved), 1, piece);
+            gamePieces.splice(gamePieces.indexOf(this.evolved), 1, piece);
         }
     }
 
