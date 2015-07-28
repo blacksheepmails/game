@@ -13,40 +13,41 @@ function GameStateMachine(gamePieces, player1, player2, pieceNamespace, myPlayer
 }
 
 GameStateMachine.prototype = {
-    deactivate: function(game_piece) {
-        if (typeof game_piece === "undefined") game_piece = this.activePiece;   
-        if (game_piece != null) game_piece.isActive = false;
+    deactivate: function(gamePiece) {
+        if (typeof gamePiece === "undefined") gamePiece = this.activePiece;
+        if (gamePiece != null) gamePiece.isActive = false;
         drawing.drawBoard();
         drawing.drawPieces(this.gamePieces);
         this.activePiece = null;  
     },
     
-    activate: function(game_piece) {
-        game_piece.isActive = true;
-        this.activePiece = game_piece;
-        game_piece.draw();
+    activate: function(gamePiece) {
+        gamePiece.isActive = true;
+        this.activePiece = gamePiece;
+        gamePiece.draw();
     },
 
     isTurn: function(player) {
         if (player instanceof Player) {
             return (this.whoseTurn === player || this.whoseTurn === 'both');
-        } else {
-            for (var c=0; c<player.length; c++) {
-                if (this.isTurn(player[c])) return true;
-            }
-            return false;
+        } 
+
+        for (var c = 0; c < player.length; c++) {
+            if (this.isTurn(player[c])) return true;
         }
+        
+        return false;
     },
 
     isTurnStrict: function(player) {
         if (player instanceof Player) {
             return (this.whoseTurn === player);
-        } else {
-            for (var c=0; c<player.length; c++) {
-                if (this.isTurn(player[c])) return true;
-            }
-            return false;
+        } 
+        for (var c=0; c<player.length; c++) {
+            if (this.isTurn(player[c])) return true;
         }
+
+        return false;
     },
 
     toggleTurn: function() {
