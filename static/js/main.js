@@ -54,10 +54,10 @@ function getSquare(x, y) {
     return null;
 }
 
-function getGamePiece(game_pieces, i, j) {
-    for (var c = 0; c < game_pieces.length; c++) {
-        if (game_pieces[c].i == i && game_pieces[c].j == j) {
-            return game_pieces[c];
+function getGamePiece(gamePieces, i, j) {
+    for (var c = 0; c < gamePieces.length; c++) {
+        if (gamePieces[c].i == i && gamePieces[c].j == j) {
+            return gamePieces[c];
         }
     }
     return null;
@@ -67,7 +67,7 @@ var currentSquareUnderMouse = function(canvas, e){
     return getSquare(e.pageX - offset(canvas).x, e.pageY - offset(canvas).y);
 };
 
-function mouseDown(ctx, canvas, game_pieces, game, e) {
+function mouseDown(ctx, canvas, gamePieces, game, e) {
     var square = currentSquareUnderMouse(canvas, e);
 
     if (square != null) {
@@ -78,14 +78,14 @@ function mouseDown(ctx, canvas, game_pieces, game, e) {
     }    
 };
 
-var isClickable = function(canvas, game_pieces, game, e){
+var isClickable = function(canvas, gamePieces, game, e){
     var isMyTurn = game.isTurn(game.myPlayer);
     if (!isMyTurn) return false;
 
     var square = currentSquareUnderMouse(canvas, e);
     if (square === null) return false;
 
-    var piece = getGamePiece(game_pieces, square.i, square.j);
+    var piece = getGamePiece(gamePieces, square.i, square.j);
 
     if (piece === null) return false; 
 
@@ -104,8 +104,8 @@ var isClickable = function(canvas, game_pieces, game, e){
     return piece.possibleMoves.length > 0;
 };
 
-var mouseMove = function(canvas, game_pieces, myPlayer, e){
-    if (isClickable(canvas, game_pieces, myPlayer, e)){
+var mouseMove = function(canvas, gamePieces, myPlayer, e){
+    if (isClickable(canvas, gamePieces, myPlayer, e)){
         $('#myCanvas').css( 'cursor', 'pointer');
     } else {
         $('#myCanvas').css('cursor', 'default');
@@ -127,7 +127,7 @@ var main = function(){
 
         drawing.drawBoard();
 
-        var game_pieces = init.game_pieces;
+        var gamePieces = init.gamePieces;
         var pieceNamespace = init.pieceNamespace;
 
         var player1 = init.player1;
@@ -145,13 +145,13 @@ var main = function(){
         else if (options.stateMachine == 'checkers') game = NormalCheckersStateMachine;
         else if (options.stateMachine == 'weird_checkers') game = WeirdCheckersStateMachine;
         
-        game = new game(game_pieces, player1, player2, pieceNamespace, myPlayer);
+        game = new game(gamePieces, player1, player2, pieceNamespace, myPlayer);
 
-        drawing.drawPieces(game_pieces);
+        drawing.drawPieces(gamePieces);
         game.updatePossibleMoves();
         
-        canvas.addEventListener('mousedown', mouseDown.bind(this, ctx, canvas, game_pieces, game));
-        canvas.addEventListener('mousemove', mouseMove.bind(this, canvas, game_pieces, game));
+        canvas.addEventListener('mousedown', mouseDown.bind(this, ctx, canvas, gamePieces, game));
+        canvas.addEventListener('mousemove', mouseMove.bind(this, canvas, gamePieces, game));
 
         document.addEventListener('keydown', function(e) {
             e = e? e : window.event;
@@ -163,7 +163,7 @@ var main = function(){
         window.addEventListener("resize", function(){
             drawing.resize();
             drawing.drawBoard();
-            drawing.drawPieces(game_pieces);
+            drawing.drawPieces(gamePieces);
         }, true);
 
         socket.emit('start_game', '');
