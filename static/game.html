@@ -3,13 +3,23 @@
 	<head>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
-
-	<style>html,body{height:100%;}</style>
+		<link rel="stylesheet" href="game.css">
 	</head>
 	<body>
-
 		<canvas id="myCanvas" style="border:1px solid black;">
 		</canvas>
+		<div id="overlay">
+			<div>
+  				<h1>What will your pawn evolve into?</h1>
+				<input type="radio" name="evolved" value="queen" checked>Queen
+				<input type="radio" name="evolved" value="rook">Rook
+				<input type="radio" name="evolved" value="bishop">Bishop
+				<input type="radio" name="evolved" value="knight">Knight
+				<br>
+				<br>
+				<button id='evolve-submit'> Evolve, motherfucka!! </button>
+			</div>
+		</div>
 		<div style='display:none'>
 			<img id='black-queen' src='img/chess/black_queen.png'>
 			<img id='black-king' src='img/chess/black_king.png'>
@@ -40,7 +50,6 @@
         <script type="text/javascript" src="js/img.js"></script>
 		<script type="text/javascript" src="js/main.js"></script>
         <script type="text/javascript" src="js/init.js"></script>
-
 
 	</body>
 </html>

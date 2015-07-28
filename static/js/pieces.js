@@ -1,7 +1,9 @@
 var PieceNamespace = function(game_pieces, captured_pieces){
 
-    CheckersKingPiece = function(ctx, i, j, img, player) {
-        GamePiece.call(this, ctx, i, j, img, player);
+    CheckersKingPiece = function(ctx, i, j, player) {
+        var image = (player.color == 'black') ? img.blackCheckerKing : img.redCheckerKing;
+        GamePiece.call(this, ctx, i, j, image, player);
+        
         this.calcPossibleMoves = function() {
             var getPiece = getGamePiece.bind(this, game_pieces);
             var moves = [];
@@ -35,8 +37,9 @@ var PieceNamespace = function(game_pieces, captured_pieces){
         }
     }
 
-    CheckersPiece = function(ctx, i, j, img, player) {
-        GamePiece.call(this, ctx, i, j, img, player);
+    CheckersPiece = function(ctx, i, j, player) {
+        var image = (player.color == 'black') ? img.blackChecker : img.redChecker;
+        GamePiece.call(this, ctx, i, j, image, player);
 
         this.calcPossibleMoves = function() {
             var getPiece = getGamePiece.bind(this, game_pieces);
@@ -75,8 +78,9 @@ var PieceNamespace = function(game_pieces, captured_pieces){
         };
     }
 
-    ChessPawn = function(ctx, i, j, img, player) {
-        GamePiece.call(this, ctx, i, j, img, player);
+    ChessPawn = function(ctx, i, j, player) {
+        var image = (player.color == 'black') ? img.blackPawn : img.whitePawn;
+        GamePiece.call(this, ctx, i, j, image, player);
 
         this.calcPossibleMoves = function() {
             var getPiece = getGamePiece.bind(this, game_pieces);
@@ -130,8 +134,9 @@ var PieceNamespace = function(game_pieces, captured_pieces){
         }
     }
 
-    ChessRook = function(ctx, i, j, img, player) {
-        GamePiece.call(this, ctx, i, j, img, player);
+    ChessRook = function(ctx, i, j, player) {
+        var image = (player.color == 'black') ? img.blackRook : img.whiteRook;
+        GamePiece.call(this, ctx, i, j, image, player);
 
         this.calcPossibleMoves = function() {
             var moves = [];
@@ -148,8 +153,9 @@ var PieceNamespace = function(game_pieces, captured_pieces){
         }
     }
 
-    ChessKnight = function(ctx, i, j, img, player) {
-        GamePiece.call(this, ctx, i, j, img, player);
+    ChessKnight = function(ctx, i, j, player) {
+        var image = (player.color == 'black') ? img.blackKnight : img.whiteKnight;
+        GamePiece.call(this, ctx, i, j, image, player);
 
         this.calcPossibleMoves = function() {
             var getPiece = getGamePiece.bind(this, game_pieces);
@@ -186,8 +192,9 @@ var PieceNamespace = function(game_pieces, captured_pieces){
         }
     }
 
-    ChessBishop = function(ctx, i, j, img, player) {
-        GamePiece.call(this, ctx, i, j, img, player);
+    ChessBishop = function(ctx, i, j, player) {
+        var image = (player.color == 'black') ? img.blackBishop : img.whiteBishop;
+        GamePiece.call(this, ctx, i, j, image, player);
 
         this.calcPossibleMoves = function() {
             var moves = [];
@@ -204,8 +211,9 @@ var PieceNamespace = function(game_pieces, captured_pieces){
         }
     }
 
-    ChessQueen = function(ctx, i, j, img, player) {
-        GamePiece.call(this, ctx, i, j, img, player);
+    ChessQueen = function(ctx, i, j, player) {
+        var image = (player.color == 'black') ? img.blackQueen : img.whiteQueen;
+        GamePiece.call(this, ctx, i, j, image, player);
 
         this.calcPossibleMoves = function() {
             var moves = [];
@@ -226,8 +234,9 @@ var PieceNamespace = function(game_pieces, captured_pieces){
         }
     }
     
-    ChessKing = function(ctx, i, j, img, player) {
-        GamePiece.call(this, ctx, i, j, img, player);
+    ChessKing = function(ctx, i, j, player) {
+        var image = (player.color == 'black') ? img.blackKing : img.whiteKing;
+        GamePiece.call(this, ctx, i, j, image, player);
 
         this.calcPossibleMoves = function() {
             var getPiece = getGamePiece.bind(this, game_pieces);
@@ -455,13 +464,48 @@ var PieceNamespace = function(game_pieces, captured_pieces){
     }
 
     function EvolvePawn(piece, move) {
-        var queenImg = (piece.color == 'black') ? img.blackQueen : img.whiteQueen;
-        this.queen = new ChessQueen(piece.ctx, move.i, move.j, queenImg, piece.player);
+        this.evolved = null;
+        this.isFirstTime = true;
+        function toggleOverlay() {
+            var box = document.getElementById("overlay");
+            box.style.visibility = (box.style.visibility == "visible") ? "hidden" : "visible";
+        }
+        function submit() {
+            var choices = document.getElementsByName('evolved');
+            for (var c = 0; c < choices.length; c++) {
+                if (choices[c].checked) {
+                    var choice = choices[c].value;
+                    var pieceClass = null;
+
+                    if (choice === 'queen')
+                        pieceClass = ChessQueen;
+                    else if (choice === 'rook')
+                        pieceClass = ChessRook;
+                    else if (choice === 'bishop')
+                        pieceClass = ChessBishop;
+                    else if (choice === 'knight')
+                        pieceClass = ChessKnight;
+                    this.evolved = new pieceClass(piece.ctx, move.i, move.j, piece.player)
+
+                    break;
+                }
+            }
+
+            game_pieces.splice(game_pieces.indexOf(piece), 1, this.evolved);
+            toggleOverlay();
+            drawing.drawBoard();
+            drawing.drawPieces(game_pieces);
+        }
         this.go = function() {
-            game_pieces.splice(game_pieces.indexOf(piece), 1, this.queen);
+            if (this.isFirstTime) {
+                document.getElementById("evolve-submit").addEventListener("click", submit.bind(this));
+                toggleOverlay();
+            } else game_pieces.splice(game_pieces.indexOf(piece), 1, this.evolved);
+
         }
         this.inverse = function() {
-            game_pieces.splice(game_pieces.indexOf(this.queen), 1, piece);
+            this.isFirstTime = false;
+            game_pieces.splice(game_pieces.indexOf(this.evolved), 1, piece);
         }
     }
 
