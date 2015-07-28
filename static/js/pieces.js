@@ -1,4 +1,4 @@
-var PieceNamespace = function(game_pieces, captured_pieces){
+var PieceNamespace = function(game_pieces, captured_pieces, drawing){
 
     CheckersKingPiece = function(ctx, i, j, player) {
         var image = (player.color == 'black') ? img.blackCheckerKing : img.redCheckerKing;
@@ -367,51 +367,8 @@ var PieceNamespace = function(game_pieces, captured_pieces){
                 }
             }
         },
-
-        highlight: function(){
-            this.ctx.lineWidth = "5";
-            this.ctx.strokeStyle = "yellow";
-            this.ctx.strokeRect(this.i * square_size, this.j * square_size, square_size, square_size);
-        },
-        fittedSizeOfImage: function(){
-            var x = this.img.width;
-            var y = this.img.height;
-
-            var ratio = x / y;
-
-            var maxWidth = square_size;
-            var maxHeight = square_size;
-
-            var x_mod_i = maxWidth % x;
-            var y_mod_j = maxHeight % y;
-
-            if (maxWidth - x_mod_i > maxHeight - y_mod_j){
-                return {
-                    x: x_mod_i, 
-                    y: y_mod_j * ratio
-                };
-            }
-            
-            return {
-                x: x_mod_i * ratio,
-                y: y_mod_j
-            };
-        },
         draw : function() {
-            if (this.isActive) {
-                this.highlight();
-            }
-
-            this.ctx.drawImage(this.img, this.i * square_size, this.j * square_size, square_size, square_size);
-
-            //var sizes = this.fittedSizeOfImage();
-
-            //TODO : remove magic numbers
-            //this.ctx.drawImage(this.img, 
-            //    this.i * square_size + (square_size / 6),
-            //    this.j * square_size,
-            //    sizes.x + square_size / 8,
-            //    sizes.y);
+            drawing.drawPiece(this);
         }
     }
 

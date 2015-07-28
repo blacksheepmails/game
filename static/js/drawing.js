@@ -40,12 +40,51 @@ var Drawing = function(ctx, canvas){
         for (var i = 0; i < pieces.length; i++) {
             pieces[i].draw();
         }
-    }
+    };
 
     var drawCaptured = function(pieces) {
         black = pieces.filter(function(a){return a.color === 'black'});
         not_black = pieces.filter(function(a){return a.color != 'black'});
-    }
+    };
+
+    var highlight =  function(i, j){
+        ctx.lineWidth = "5";
+        ctx.strokeStyle = "yellow";
+        ctx.strokeRect(i * squareSize, j * squareSize, squareSize, squareSize);
+    };
+
+    var drawPiece = function(piece) {
+        if (piece.isActive()) highlight(piece.i, piece.j);
+
+        ctx.drawImage(piece.img, piece.i * squareSize, piece.j * squareSize, squareSize, squareSize);
+    };
+
+
+    var fittedSizeOfImage: function(img){
+        var x = img.width;
+        var y = img.height;
+
+        var ratio = x / y;
+
+        var maxWidth = squareSize;
+        var maxHeight = squareSize;
+
+        var x_mod_i = maxWidth % x;
+        var y_mod_j = maxHeight % y;
+
+        if (maxWidth - x_mod_i > maxHeight - y_mod_j){
+            return {
+                x: x_mod_i, 
+                y: y_mod_j * ratio
+            };
+        }
+        
+        return {
+            x: x_mod_i * ratio,
+            y: y_mod_j
+        };
+    };
+
 
     var resize = function(){
         if (window.innerHeight < window.innerWidth){
