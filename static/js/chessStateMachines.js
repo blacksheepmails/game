@@ -11,10 +11,12 @@ function NormalChessStateMachine(game_pieces, player1, player2, pieceNamespace, 
             if (this.shouldActivate(game_piece)) this.activate(game_piece);
             return;
         }
-        if (this.activePiece.i == square.i && this.activePiece.j == square.j) {
+        
+        if (this.isActivePiece(square)) {
             this.deactivate();
             return;
         }
+        
         var move = null;
         var isValidMove = this.isValidMove(this.activePiece, square.i, square.j);
         
@@ -32,7 +34,11 @@ function NormalChessStateMachine(game_pieces, player1, player2, pieceNamespace, 
             else console.log("draw!");
         }
         return move;
-    }
+    };
+    
+    this.isActivePiece = function(square){
+        return this.activePiece.i == square.i && this.activePiece.j == square.j;
+    };
 }
 
 ChessStateMachine.prototype = Object.create(GameStateMachine.prototype);
