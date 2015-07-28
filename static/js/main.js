@@ -2,11 +2,10 @@ var socket = io.connect('/game_data');
 
 var canvas = document.getElementById("myCanvas");
 
-var board_size;
-var square_size;
 
 var ctx = canvas.getContext("2d");
-var drawing = Drawing(ctx);
+var drawing = Drawing(ctx, canvas);
+
 var img = new Img();
 
 var date = new Date();
@@ -40,8 +39,9 @@ var offset = function(canvas) {
 }
 
 function getSquare(x, y) {
-    var i = Math.floor(x / square_size);
-    var j = Math.floor(y / square_size);
+    var squareSize = drawing.getSettings().squareSize;
+    var i = Math.floor(x / squareSize);
+    var j = Math.floor(y / squareSize);
 
     if ((i >= 1 && i <= 8) && 
         (j >= 1 && j <= 8)) {
@@ -49,15 +49,15 @@ function getSquare(x, y) {
             i: i,
             j: j
         };
-    } else {
-        return null;
-    }
+    } 
+
+    return null;
 }
 
-function getGamePiece(game_pieces, i, j) {
-    for (var c = 0; c < game_pieces.length; c++) {
-        if (game_pieces[c].i == i && game_pieces[c].j == j) {
-            return game_pieces[c];
+function getGamePiece(gamePieces, i, j) {
+    for (var c = 0; c < gamePieces.length; c++) {
+        if (gamePieces[c].i == i && gamePieces[c].j == j) {
+            return gamePieces[c];
         }
     }
     return null;
@@ -67,7 +67,7 @@ var currentSquareUnderMouse = function(canvas, e){
     return getSquare(e.pageX - offset(canvas).x, e.pageY - offset(canvas).y);
 };
 
-function mouseDown(ctx, canvas, game_pieces, game, e) {
+function mouseDown(ctx, canvas, gamePieces, game, e) {
     var square = currentSquareUnderMouse(canvas, e);
 
     if (square != null) {
@@ -78,14 +78,14 @@ function mouseDown(ctx, canvas, game_pieces, game, e) {
     }    
 };
 
-var isClickable = function(canvas, game_pieces, game, e){
+var isClickable = function(canvas, gamePieces, game, e){
     var isMyTurn = game.isTurn(game.myPlayer);
     if (!isMyTurn) return false;
 
     var square = currentSquareUnderMouse(canvas, e);
     if (square === null) return false;
 
-    var piece = getGamePiece(game_pieces, square.i, square.j);
+    var piece = getGamePiece(gamePieces, square.i, square.j);
 
     if (piece === null) return false; 
 
@@ -93,6 +93,7 @@ var isClickable = function(canvas, game_pieces, game, e){
     for (var i = 0; i < game.myPlayer.length; i++){
         if (piece.player == game.myPlayer[i]){
             found = true;
+            break;
         }
     }
 
@@ -103,8 +104,8 @@ var isClickable = function(canvas, game_pieces, game, e){
     return piece.possibleMoves.length > 0;
 };
 
-var mouseMove = function(canvas, game_pieces, myPlayer, e){
-    if (isClickable(canvas, game_pieces, myPlayer, e)){
+var mouseMove = function(canvas, gamePieces, myPlayer, e){
+    if (isClickable(canvas, gamePieces, myPlayer, e)){
         $('#myCanvas').css( 'cursor', 'pointer');
     } else {
         $('#myCanvas').css('cursor', 'default');
@@ -112,10 +113,12 @@ var mouseMove = function(canvas, game_pieces, myPlayer, e){
 };
 
 var main = function(){
+    
+    drawing.resize();
 
     $.get("/get_game_options", function(options) {
         ctx.font = '20px Arial';
-        var init
+        var init = null;
         if (options.setup == 'simple_checkers') init = initCheckers(ctx,true);
         else if (options.setup == 'checkers') init = initCheckers(ctx);
         else if (options.setup == 'simple_chess') init = initChess(ctx,true);
@@ -124,7 +127,7 @@ var main = function(){
 
         drawing.drawBoard();
 
-        var game_pieces = init.game_pieces;
+        var gamePieces = init.gamePieces;
         var pieceNamespace = init.pieceNamespace;
 
         var player1 = init.player1;
@@ -136,33 +139,36 @@ var main = function(){
         else if (options.player === 'both') myPlayer = [player1, player2];
 
 
-        var game
+        var game = null;
         if (options.stateMachine === 'normal') game = GameStateMachine;
         else if (options.stateMachine == 'chess') game = NormalChessStateMachine;
         else if (options.stateMachine == 'checkers') game = NormalCheckersStateMachine;
         else if (options.stateMachine == 'weird_checkers') game = WeirdCheckersStateMachine;
-        game = new game(game_pieces, player1, player2, pieceNamespace, myPlayer);
+        
+        game = new game(gamePieces, player1, player2, pieceNamespace, myPlayer);
 
-        drawing.drawPieces(game_pieces);
+        drawing.drawPieces(gamePieces);
         game.updatePossibleMoves();
         
-        canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces, game);
-        canvas.addEventListener('mousemove', mouseMove.bind(this, canvas, game_pieces, game));
+        canvas.addEventListener('mousedown', mouseDown.bind(this, ctx, canvas, gamePieces, game));
+        canvas.addEventListener('mousemove', mouseMove.bind(this, canvas, gamePieces, game));
 
-        document.onkeydown = function(e) {
+        document.addEventListener('keydown', function(e) {
             e = e? e : window.event;
             if (e.keyCode == '37') game.stepBack();
             if (e.keyCode == '39') game.stepForward();
             if (e.which === 90 && e.ctrlKey) socket.emit('undo_ask', '');
-        }
+        });
 
         window.addEventListener("resize", function(){
+            drawing.resize();
             drawing.drawBoard();
-            drawing.drawPieces(game_pieces);
+            drawing.drawPieces(gamePieces);
         }, true);
         
         socket.on('server_to_client_move', function(move) {
             if (move === '' || move === null) return;
+            
             if (game.lastMove == null || move.time !== game.lastMove.time) {
                 game.fastForward();
                 game.makeMove(move.from, move.to);
@@ -170,16 +176,19 @@ var main = function(){
         });
 
         socket.on('undo_answer', function(ans) {
-            if (ans === 'yes') {
-                game.fastForward();
-                game.undo();
+            if(ans != 'yes'){
+                console.log('undo rejected');
+                return;
             }
-            else console.log('undo rejected');
+
+            game.fastForward();
+            game.undo();
         });
 
         socket.on('undo_ask', function(name) {
-            var ans = window.confirm('player '+ name +' is a cheat and wants to undo. will you allow it?');
-            if (ans == true) socket.emit('undo_answer', 'yes');
+            var ans = window.confirm('player ' + name + ' is a cheat and wants to undo. will you allow it?');
+            
+            if (ans) socket.emit('undo_answer', 'yes');
             else socket.emit('undo_answer', 'no');
         });
 

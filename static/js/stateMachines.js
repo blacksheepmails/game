@@ -1,6 +1,6 @@
 
-function GameStateMachine(game_pieces, player1, player2, pieceNamespace, myPlayer) {
-    this.game_pieces = game_pieces;
+function GameStateMachine(gamePieces, player1, player2, pieceNamespace, myPlayer) {
+    this.gamePieces = gamePieces;
     this.pieceNamespace = pieceNamespace;
     this.player1 = player1;
     this.player2 = player2;
@@ -13,40 +13,41 @@ function GameStateMachine(game_pieces, player1, player2, pieceNamespace, myPlaye
 }
 
 GameStateMachine.prototype = {
-    deactivate: function(game_piece) {
-        if (typeof game_piece === "undefined") game_piece = this.activePiece;   
-        if (game_piece != null) game_piece.isActive = false;
+    deactivate: function(gamePiece) {
+        if (typeof gamePiece === "undefined") gamePiece = this.activePiece;
+        if (gamePiece != null) gamePiece.isActive = false;
         drawing.drawBoard();
-        drawing.drawPieces(this.game_pieces);
+        drawing.drawPieces(this.gamePieces);
         this.activePiece = null;  
     },
     
-    activate: function(game_piece) {
-        game_piece.isActive = true;
-        this.activePiece = game_piece;
-        game_piece.draw();
+    activate: function(gamePiece) {
+        gamePiece.isActive = true;
+        this.activePiece = gamePiece;
+        gamePiece.draw();
     },
 
     isTurn: function(player) {
         if (player instanceof Player) {
             return (this.whoseTurn === player || this.whoseTurn === 'both');
-        } else {
-            for (var c=0; c<player.length; c++) {
-                if (this.isTurn(player[c])) return true;
-            }
-            return false;
+        } 
+
+        for (var c = 0; c < player.length; c++) {
+            if (this.isTurn(player[c])) return true;
         }
+        
+        return false;
     },
 
     isTurnStrict: function(player) {
         if (player instanceof Player) {
             return (this.whoseTurn === player);
-        } else {
-            for (var c=0; c<player.length; c++) {
-                if (this.isTurn(player[c])) return true;
-            }
-            return false;
+        } 
+        for (var c=0; c<player.length; c++) {
+            if (this.isTurn(player[c])) return true;
         }
+
+        return false;
     },
 
     toggleTurn: function() {
@@ -64,11 +65,11 @@ GameStateMachine.prototype = {
         return false;
     },
     getPieces: function(player) {
-        return this.game_pieces.filter(function(a) {return a.player === player;})
+        return this.gamePieces.filter(function(a) {return a.player === player;})
     },
     updatePossibleMoves: function() {
-        for (var c = 0; c < this.game_pieces.length; c++) {
-            this.game_pieces[c].calcPossibleMoves();
+        for (var c = 0; c < this.gamePieces.length; c++) {
+            this.gamePieces[c].calcPossibleMoves();
         }
         if (this.activePiece != null) this.activePiece.calcPossibleMoves();
     },
@@ -82,7 +83,7 @@ GameStateMachine.prototype = {
     },
 
     makeMove: function(from, to) {
-        var piece = getGamePiece(this.game_pieces, from.i, from.j);
+        var piece = getGamePiece(this.gamePieces, from.i, from.j);
         this.move(piece, to);
         this.toggleTurn();
         this.deactivate(piece);
@@ -135,7 +136,7 @@ GameStateMachine.prototype = {
     },
     next: function(square) {
         if (this.activePiece == null) {
-            var game_piece = getGamePiece(this.game_pieces, square.i, square.j);
+            var game_piece = getGamePiece(this.gamePieces, square.i, square.j);
             if (this.shouldActivate(game_piece)) this.activate(game_piece);
             return;
         }

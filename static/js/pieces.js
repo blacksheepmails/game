@@ -1,11 +1,11 @@
-var PieceNamespace = function(game_pieces, captured_pieces){
+var PieceNamespace = function(gamePieces, capturedPieces, drawing){
 
     CheckersKingPiece = function(ctx, i, j, player) {
         var image = (player.color == 'black') ? img.blackCheckerKing : img.redCheckerKing;
         GamePiece.call(this, ctx, i, j, image, player);
         
         this.calcPossibleMoves = function() {
-            var getPiece = getGamePiece.bind(this, game_pieces);
+            var getPiece = getGamePiece.bind(this, gamePieces);
             var moves = [];
 
             for (var i_dir = -1; i_dir <= 1; i_dir += 2) {
@@ -42,7 +42,7 @@ var PieceNamespace = function(game_pieces, captured_pieces){
         GamePiece.call(this, ctx, i, j, image, player);
 
         this.calcPossibleMoves = function() {
-            var getPiece = getGamePiece.bind(this, game_pieces);
+            var getPiece = getGamePiece.bind(this, gamePieces);
 
             var moves = [];
             var j_dir = (this.color == 'black')? -1: 1;
@@ -83,7 +83,7 @@ var PieceNamespace = function(game_pieces, captured_pieces){
         GamePiece.call(this, ctx, i, j, image, player);
 
         this.calcPossibleMoves = function() {
-            var getPiece = getGamePiece.bind(this, game_pieces);
+            var getPiece = getGamePiece.bind(this, gamePieces);
             var moves = [];
             var attacks = [];
             var j_dir = (this.color == 'black')? -1: 1;
@@ -158,7 +158,7 @@ var PieceNamespace = function(game_pieces, captured_pieces){
         GamePiece.call(this, ctx, i, j, image, player);
 
         this.calcPossibleMoves = function() {
-            var getPiece = getGamePiece.bind(this, game_pieces);
+            var getPiece = getGamePiece.bind(this, gamePieces);
             var moves = [];
             var jumps = [{i: -2, j: -1},
                          {i: -2, j: 1},
@@ -239,7 +239,7 @@ var PieceNamespace = function(game_pieces, captured_pieces){
         GamePiece.call(this, ctx, i, j, image, player);
 
         this.calcPossibleMoves = function() {
-            var getPiece = getGamePiece.bind(this, game_pieces);
+            var getPiece = getGamePiece.bind(this, gamePieces);
             var moves = [];
             for (i_dir = -1; i_dir <= 1; i_dir +=1) {
                 for (j_dir = -1; j_dir <= 1; j_dir +=1) {
@@ -320,7 +320,7 @@ var PieceNamespace = function(game_pieces, captured_pieces){
             return false;
         },
         extend: function(moves, inc) {
-            var getPiece = getGamePiece.bind(this, game_pieces);
+            var getPiece = getGamePiece.bind(this, gamePieces);
             var c = 1;
             while (this.inRange(this.i + c*inc.i, this.j + c*inc.j)) {
                 var piece = getPiece(this.i + c*inc.i, this.j + c*inc.j);
@@ -367,51 +367,8 @@ var PieceNamespace = function(game_pieces, captured_pieces){
                 }
             }
         },
-
-        highlight: function(){
-            this.ctx.lineWidth = "5";
-            this.ctx.strokeStyle = "yellow";
-            this.ctx.strokeRect(this.i * square_size, this.j * square_size, square_size, square_size);
-        },
-        fittedSizeOfImage: function(){
-            var x = this.img.width;
-            var y = this.img.height;
-
-            var ratio = x / y;
-
-            var maxWidth = square_size;
-            var maxHeight = square_size;
-
-            var x_mod_i = maxWidth % x;
-            var y_mod_j = maxHeight % y;
-
-            if (maxWidth - x_mod_i > maxHeight - y_mod_j){
-                return {
-                    x: x_mod_i, 
-                    y: y_mod_j * ratio
-                };
-            }
-            
-            return {
-                x: x_mod_i * ratio,
-                y: y_mod_j
-            };
-        },
         draw : function() {
-            if (this.isActive) {
-                this.highlight();
-            }
-
-            this.ctx.drawImage(this.img, this.i * square_size, this.j * square_size, square_size, square_size);
-
-            //var sizes = this.fittedSizeOfImage();
-
-            //TODO : remove magic numbers
-            //this.ctx.drawImage(this.img, 
-            //    this.i * square_size + (square_size / 6),
-            //    this.j * square_size,
-            //    sizes.x + square_size / 8,
-            //    sizes.y);
+            drawing.drawPiece(this);
         }
     }
 
@@ -429,13 +386,13 @@ var PieceNamespace = function(game_pieces, captured_pieces){
     function Capture(piece) {
         this.captured = piece;
         this.go = function() {
-            game_pieces.splice(game_pieces.indexOf(piece), 1);
-            captured_pieces.push(piece);
+            gamePieces.splice(gamePieces.indexOf(piece), 1);
+            capturedPieces.push(piece);
 
         }
         this.inverse = function() {
-            captured_pieces.splice(captured_pieces.indexOf(piece), 1);
-            game_pieces.push(piece);
+            capturedPieces.splice(capturedPieces.indexOf(piece), 1);
+            gamePieces.push(piece);
         }
     }
     function Move(piece, i, j) {
@@ -456,10 +413,10 @@ var PieceNamespace = function(game_pieces, captured_pieces){
         var checkerImg = (piece.color == 'black') ? img.blackCheckerKing : img.redCheckerKing;
         this.king = new CheckersKingPiece(piece.ctx, move.i, move.j, checkerImg, piece.player);
         this.go = function() {
-            game_pieces.splice(game_pieces.indexOf(piece), 1, this.king);
+            gamePieces.splice(gamePieces.indexOf(piece), 1, this.king);
         }
         this.inverse = function() {
-            game_pieces.splice(game_pieces.indexOf(this.king), 1, piece);
+            gamePieces.splice(gamePieces.indexOf(this.king), 1, piece);
         }
     }
 
@@ -491,21 +448,30 @@ var PieceNamespace = function(game_pieces, captured_pieces){
                 }
             }
 
-            game_pieces.splice(game_pieces.indexOf(piece), 1, this.evolved);
+            gamePieces.splice(gamePieces.indexOf(piece), 1, this.evolved);
             toggleOverlay();
             drawing.drawBoard();
-            drawing.drawPieces(game_pieces);
+            drawing.drawPieces(gamePieces);
         }
         this.go = function() {
             if (this.isFirstTime) {
                 document.getElementById("evolve-submit").addEventListener("click", submit.bind(this));
                 toggleOverlay();
+<<<<<<< HEAD
                 this.isFirstTime = false;
             } else game_pieces.splice(game_pieces.indexOf(piece), 1, this.evolved);
 
         }
         this.inverse = function() {
             game_pieces.splice(game_pieces.indexOf(this.evolved), 1, piece);
+=======
+            } else gamePieces.splice(gamePieces.indexOf(piece), 1, this.evolved);
+
+        }
+        this.inverse = function() {
+            this.isFirstTime = false;
+            gamePieces.splice(gamePieces.indexOf(this.evolved), 1, piece);
+>>>>>>> d73fdba6421fd4c62eb3eed32a0f49b68674b3c1
         }
     }
 

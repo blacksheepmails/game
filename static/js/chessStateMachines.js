@@ -1,20 +1,22 @@
-function ChessStateMachine(game_pieces, player1, player2, pieceNamespace, myPlayer) {
-    GameStateMachine.call(this, game_pieces, player1, player2, pieceNamespace, myPlayer);
+function ChessStateMachine(gamePieces, player1, player2, pieceNamespace, myPlayer) {
+    GameStateMachine.call(this, gamePieces, player1, player2, pieceNamespace, myPlayer);
 }
 
-function NormalChessStateMachine(game_pieces, player1, player2, pieceNamespace, myPlayer) {
-    ChessStateMachine.call(this, game_pieces, player1, player2, pieceNamespace, myPlayer);
+function NormalChessStateMachine(gamePieces, player1, player2, pieceNamespace, myPlayer) {
+    ChessStateMachine.call(this, gamePieces, player1, player2, pieceNamespace, myPlayer);
 
     this.next = function(square) {
         if (this.activePiece == null) {
-            var game_piece = getGamePiece(this.game_pieces, square.i, square.j);
+            var game_piece = getGamePiece(this.gamePieces, square.i, square.j);
             if (this.shouldActivate(game_piece)) this.activate(game_piece);
             return;
         }
-        if (this.activePiece.i == square.i && this.activePiece.j == square.j) {
+        
+        if (this.isActivePiece(square)) {
             this.deactivate();
             return;
         }
+        
         var move = null;
         var isValidMove = this.isValidMove(this.activePiece, square.i, square.j);
         
@@ -32,7 +34,11 @@ function NormalChessStateMachine(game_pieces, player1, player2, pieceNamespace, 
             else console.log("draw!");
         }
         return move;
-    }
+    };
+    
+    this.isActivePiece = function(square){
+        return this.activePiece.i == square.i && this.activePiece.j == square.j;
+    };
 }
 
 ChessStateMachine.prototype = Object.create(GameStateMachine.prototype);
