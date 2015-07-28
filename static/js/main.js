@@ -146,7 +146,7 @@ var main = function(){
         drawing.drawPieces(game_pieces);
         game.updatePossibleMoves();
         
-        canvas.onmousedown = mouseDown.bind(this, ctx, canvas, game_pieces, game);
+        canvas.addEventListener('mousedown', mouseDown.bind(this, ctx, canvas, game_pieces, game));
         canvas.addEventListener('mousemove', mouseMove.bind(this, canvas, game_pieces, game));
 
         document.onkeydown = function(e) {
@@ -165,6 +165,7 @@ var main = function(){
         
         socket.on('server_to_client_move', function(move) {
             if (move === '' || move === null) return;
+            
             if (game.lastMove == null || move.time !== game.lastMove.time) {
                 game.fastForward();
                 game.makeMove(move.from, move.to);
@@ -176,12 +177,15 @@ var main = function(){
                 game.fastForward();
                 game.undo();
             }
-            else console.log('undo rejected');
+            else {
+                console.log('undo rejected');
+            }
         });
 
         socket.on('undo_ask', function(name) {
             var ans = window.confirm('player '+ name +' is a cheat and wants to undo. will you allow it?');
-            if (ans == true) socket.emit('undo_answer', 'yes');
+            
+            if (ans) socket.emit('undo_answer', 'yes');
             else socket.emit('undo_answer', 'no');
         });
 
