@@ -73,18 +73,20 @@ GameStateMachine.prototype = {
         }
         if (this.activePiece != null) this.activePiece.calcPossibleMoves();
     },
-    move: function(piece, square) {
+    move: function(piece, square, msg) {
         var move = piece.getMove(square.i, square.j);
         this.log.push({piece: piece, from: {i: piece.i, j: piece.j}, move: move, turn: this.whoseTurn});
-        move.sideEffects.map(function(x) {x.go()});
+        move.sideEffects.map(function(x) {x.go(msg)});
         piece.i = square.i;
         piece.j = square.j;
         this.updatePossibleMoves();
     },
 
-    makeMove: function(from, to) {
+    makeMove: function(from, to, msg) {
+        if (typeof msg === 'undefined') msg = 'from makeMove';
         var piece = getGamePiece(this.gamePieces, from.i, from.j);
-        this.move(piece, to);
+        this.lastMove = this.makeMoveObject(to, piece);
+        this.move(piece, to, msg);
         this.toggleTurn();
         this.deactivate(piece);
     },
@@ -128,11 +130,12 @@ GameStateMachine.prototype = {
             this.stepForward();
         }
     },
-    makeMoveObject: function(square) {
-        return {from: {i: this.activePiece.i, j: this.activePiece.j}, 
+    makeMoveObject: function(square, piece) {
+        if (typeof piece === 'undefined') piece = this.activePiece;
+        return {from: {i: piece.i, j: piece.j}, 
                 to: square,
-                color: this.activePiece.color,
-                time: date.getTime()};
+                color: piece.color,
+                time: Date.now()};
     },
     next: function(square) {
         if (this.activePiece == null) {

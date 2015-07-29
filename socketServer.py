@@ -23,7 +23,6 @@ def static_proxy(path):
 
 @app.route('/game')
 def root():
-    print('s', session)
     if 'username' in session:
         game_id = request.args.get('game')
         session['game'] = game_id
@@ -49,7 +48,12 @@ def active_page():
 
 @app.route('/get_game_options', methods=['GET'])
 def get_game_options():
-    obj = {'player': session['player'], 'setup': session['setup'], 'stateMachine': session['stateMachine']}
+    obj = {
+        'player': session['player'],
+        'setup': session['setup'],
+        'stateMachine': session['stateMachine'],
+        'username': session['username']
+    }
     return (jsonify(obj))
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -99,8 +103,12 @@ def handle_connect():
         'stateMachine': session['stateMachine']
     }
     join_room(session['game'])
-    for move in db.lrange(session['game'], 0, -1):
-        emit('server_to_client_move', ast.literal_eval(move))
+    for move_string in db.lrange(session['game'], 0, -1):
+        move = ast.literal_eval(move_string)
+        emit('server_to_client_move', move)
+        if 'info' in move:
+            emit('picking_piece', 'eeeeeeeeeeeeeeeeeeee')
+            emit('picked_piece', move['info'])
 
 @socketio.on('disconnect', namespace='/game_data')
 def handle_disconnect():
@@ -118,6 +126,19 @@ def received_move(move):
         undo_tell('no')
     emit('server_to_client_move', move, room = session['game'])
     db.rpush(session['game'], str(move))
+
+@socketio.on('picking_piece', namespace='/game_data')
+def picking_piece(stuff):
+    print('picking_piece')
+    emit('picking_piece', session['username'], room = session['game'])
+
+@socketio.on('picked_piece', namespace='/game_data')
+def picked_piece(piece):
+    print('picked_piece')
+    move = ast.literal_eval(db.rpop(session['game']))
+    move['info'] = piece;
+    db.rpush(session['game'], str(move))
+    emit('picked_piece', piece, room = session['game'])
 
 @socketio.on('undo_ask', namespace='/game_data')
 def undo_ask(stuff):

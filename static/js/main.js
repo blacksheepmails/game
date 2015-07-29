@@ -8,8 +8,6 @@ var drawing = Drawing(ctx, canvas);
 
 var img = new Img();
 
-var date = new Date();
-
 var offset = function(canvas) {
     var x = 0;
     var y = 0;
@@ -168,13 +166,25 @@ var main = function(){
         
         socket.on('server_to_client_move', function(move) {
             if (move === '' || move === null) return;
-            
             if (game.lastMove == null || move.time !== game.lastMove.time) {
                 game.fastForward();
                 game.makeMove(move.from, move.to);
             }
         });
-
+        socket.on('picking_piece', function(player) {
+            console.log(options.username + ' ' + player)
+            if (options.username === player) return;
+            var box = document.getElementById("choosing");
+            box.style.visibility = "visible";
+        });
+        socket.on('picked_piece', function(piece) {
+            var box = document.getElementById("choosing");
+            if (box.style.visibility === "hidden") return;
+            game.undo();
+            game.makeMove(game.lastMove.from, game.lastMove.to, piece);
+            box.style.visibility = 'hidden';
+            document.getElementById('choices').style.visibility = 'hidden';
+        });
         socket.on('undo_answer', function(ans) {
             if(ans != 'yes'){
                 console.log('undo rejected');

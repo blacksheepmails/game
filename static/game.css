@@ -2,6 +2,9 @@ html, body {
 	height:100%;
 }
 
+#choosing {
+     z-index: 1001; 
+}
 .overlay {
      visibility: hidden;
      position: absolute;

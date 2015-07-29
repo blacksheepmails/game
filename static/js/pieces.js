@@ -422,47 +422,49 @@ var PieceNamespace = function(gamePieces, capturedPieces, drawing){
 
     function EvolvePawn(piece, move) {
         this.evolved = null;
-        this.isFirstTime = true;
-        function toggleOverlay() {
-            var box = document.getElementById("overlay");
-            box.style.visibility = (box.style.visibility == "visible") ? "hidden" : "visible";
+        var box = document.getElementById("choices");
+
+        function getEvolvedPiece(choice) {
+            var pieceClass = null;
+            if (choice === 'queen')
+                pieceClass = ChessQueen;
+            else if (choice === 'rook')
+                pieceClass = ChessRook;
+            else if (choice === 'bishop')
+                pieceClass = ChessBishop;
+            else if (choice === 'knight')
+                pieceClass = ChessKnight;
+            return new pieceClass(piece.ctx, move.i, move.j, piece.player);
         }
         function submit() {
             var choices = document.getElementsByName('evolved');
             for (var c = 0; c < choices.length; c++) {
                 if (choices[c].checked) {
                     var choice = choices[c].value;
-                    var pieceClass = null;
-
-                    if (choice === 'queen')
-                        pieceClass = ChessQueen;
-                    else if (choice === 'rook')
-                        pieceClass = ChessRook;
-                    else if (choice === 'bishop')
-                        pieceClass = ChessBishop;
-                    else if (choice === 'knight')
-                        pieceClass = ChessKnight;
-                    this.evolved = new pieceClass(piece.ctx, move.i, move.j, piece.player)
-
+                    socket.emit('picked_piece', choice);
+                    this.evolved = getEvolvedPiece(choice);
                     break;
                 }
             }
-
             gamePieces.splice(gamePieces.indexOf(piece), 1, this.evolved);
-            toggleOverlay();
+            box.style.visibility = 'hidden';
             drawing.drawBoard();
             drawing.drawPieces(gamePieces);
         }
-        this.go = function() {
-            if (this.isFirstTime) {
+        this.go = function(msg) {
+            if (typeof msg !== 'undefined') {
+                if (msg == 'from makeMove') msg = 'queen'
+                this.evolved = getEvolvedPiece(msg);
+            }
+            if (this.evolved === null) {
                 document.getElementById("evolve-submit").addEventListener("click", submit.bind(this));
-                toggleOverlay();
-                this.isFirstTime = false;
-            } else game_pieces.splice(game_pieces.indexOf(piece), 1, this.evolved);
+                box.style.visibility = 'visible';
+                socket.emit('picking_piece', '');
+            } else gamePieces.splice(gamePieces.indexOf(piece), 1, this.evolved);
 
         }
         this.inverse = function() {
-            game_pieces.splice(game_pieces.indexOf(this.evolved), 1, piece);
+            gamePieces.splice(gamePieces.indexOf(this.evolved), 1, piece);
         }
     }
 
