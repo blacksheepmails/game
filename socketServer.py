@@ -54,7 +54,7 @@ def get_game_options():
         'stateMachine': session['stateMachine'],
         'username': session['username']
     }
-    return (jsonify(obj))
+    return jsonify(obj)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -83,13 +83,11 @@ def logout():
 #     return response
 
 
-def isValidUser():
-    try:
-        if session['username'] in app.users:
-            return True
-    except:
+def is_valid_user():
+    if 'username' not in session:
         return False
-    return False
+
+    return session['username'] in app.users
 
 @socketio.on('connect', namespace='/game_data')
 def handle_connect():
@@ -119,7 +117,7 @@ def handle_disconnect():
 
 @socketio.on('client_to_server_move', namespace='/game_data')
 def received_move(move):
-    if not isValidUser():
+    if not is_valid_user():
         disconnect()
         return
     if session['game'] in app.undoLog:
@@ -142,7 +140,7 @@ def picked_piece(piece):
 
 @socketio.on('undo_ask', namespace='/game_data')
 def undo_ask(stuff):
-    if not isValidUser():
+    if not is_valid_user():
         disconnect()
         return
     emit('undo_ask', session['username'], room = session['game'])
@@ -150,11 +148,13 @@ def undo_ask(stuff):
 
 @socketio.on('undo_answer', namespace='/game_data')
 def undo_answer(ans):
-    if not isValidUser():
+    if not is_valid_user():
         disconnect()
         return
+
     if ans == 'no':
         undo_tell('no')
+
     c = len(filter(lambda user: user['game'] == session['game'], app.users.values()))
     if session['game'] in app.undoLog:
         app.undoLog[session['game']].add(session['username'])
@@ -168,11 +168,3 @@ def undo_tell(ans):
 
 if __name__ == '__main__':
     socketio.run(app)
-
-def isValidUser():
-    try:
-        if session['username'] in app.users:
-            return True
-    except:
-        return False
-    return False
