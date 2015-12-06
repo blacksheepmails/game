@@ -410,8 +410,8 @@ var PieceNamespace = function(gamePieces, capturedPieces, drawing){
     }
 
     function KingMe(piece, move) {
-        var checkerImg = (piece.color == 'black') ? img.blackCheckerKing : img.redCheckerKing;
-        this.king = new CheckersKingPiece(piece.ctx, move.i, move.j, checkerImg, piece.player);
+        this.king = new CheckersKingPiece(piece.ctx, move.i, move.j, piece.player);
+        console.log(this.king);
         this.go = function() {
             gamePieces.splice(gamePieces.indexOf(piece), 1, this.king);
         }

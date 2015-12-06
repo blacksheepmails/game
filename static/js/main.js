@@ -1,9 +1,7 @@
-$(document).ready(function(){
-
-
-// var socket = io.connect('/game_data');
 var socket = io.connect('http://' + document.domain + ':' + location.port + '/game_data');
-
+socket.on('connect', function() {
+    console.log("I'm connected!");
+});
 var canvas = document.getElementById("myCanvas");
 
 
@@ -225,5 +223,3 @@ var main = function(){
 
 };
 window.onload = main;
-
-});
