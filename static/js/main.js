@@ -1,4 +1,8 @@
-var socket = io.connect('/game_data');
+$(document).ready(function(){
+
+
+// var socket = io.connect('/game_data');
+var socket = io.connect('http://' + document.domain + ':' + location.port + '/game_data');
 
 var canvas = document.getElementById("myCanvas");
 
@@ -202,11 +206,11 @@ var main = function(){
             else socket.emit('undo_answer', 'no');
         });
 
-        setInterval(function(){
-            if (!socket.socket.connected) {
-                window.location.href="/closed_connection";
-            }
-        }, 20000);
+        // setInterval(function(){
+        //     if (!socket.socket.connected) {
+        //         window.location.href="/closed_connection";
+        //     }
+        // }, 20000);
         /*setInterval(function(){
             $.get("/get_move", function(move) {
                 if (move === '' || move === null) return;
@@ -221,3 +225,5 @@ var main = function(){
 
 };
 window.onload = main;
+
+});
