@@ -1,3 +1,4 @@
+console.log("llg", document.domain);
 var socket = io.connect('http://' + document.domain + ':' + location.port + '/game_data');
 socket.on('connect', function() {
     console.log("I'm connected!");
@@ -187,7 +188,7 @@ var main = function(){
             box.style.visibility = 'hidden';
             document.getElementById('choices').style.visibility = 'hidden';
         });
-        socket.on('undo_answer', function(ans) {
+        socket.on('undo_answer_from_server', function(ans) {
             if(ans != 'yes'){
                 console.log('undo rejected');
                 return;
@@ -197,7 +198,7 @@ var main = function(){
             game.undo();
         });
 
-        socket.on('undo_ask', function(name) {
+        socket.on('undo_ask_from_server', function(name) {
             var ans = window.confirm('player ' + name + ' is a cheat and wants to undo. will you allow it?');
             
             if (ans) socket.emit('undo_answer', 'yes');

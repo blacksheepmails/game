@@ -3,12 +3,12 @@ import ast
 from flask import Flask
 from flask import jsonify, redirect, url_for, escape
 from flask import request,  session 
-from flask.ext.socketio import SocketIO, emit, join_room, leave_room, disconnect
+from flask_socketio import SocketIO, emit, rooms, join_room, leave_room, disconnect
 
 app = Flask(__name__)
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
-socketio = SocketIO(app)
+socketio = SocketIO(app, engineio_logger=True)
 app.users = {}
 app.log = {}
 app.undoLog = {}
@@ -31,10 +31,6 @@ def root():
 @app.route('/users', methods=['GET'])
 def logged_in_users():
     return jsonify({'users': app.users})
-
-@app.route('/closed_connection')
-def closed_connection():
-    return 'connection is closed little sausage'
 
 @app.route('/games', methods=['GET'])
 def active_games():
@@ -84,12 +80,9 @@ def login():
 
 @socketio.on('connect', namespace='/game_data')
 def handle_connect():
-    print('hhhhhhhmmmmmmmmmmmm')
     if 'username' not in session:
-        print('heerree')
-        print(session)
-        disconnect()
-        return
+        return redirect(url_for('login'))
+
     app.users[session['username']] = {
         'game': session['game'],
         'player': session['player'],
@@ -97,29 +90,24 @@ def handle_connect():
         'stateMachine': session['stateMachine']
     }
     join_room(session['game'])
-    for move_string in db.lrange(session['game'], 0, -1):
-        move = ast.literal_eval(move_string)
+    print('ROOMS: ' + str(rooms()))
+    for move_bytes_literal in db.lrange(session['game'], 0, -1):
+        move = ast.literal_eval(move_bytes_literal.decode("utf-8"))
         emit('server_to_client_move', move)
         if 'info' in move:
-            emit('picking_piece', 'eeeeeeeeeeeeeeeeeeee')
             emit('picked_piece', move['info'])
 
-# @socketio.on('disconnect', namespace='/game_data')
-# def handle_disconnect():
-#     emit('disconnect')
-#     if 'username' in session and session['username'] in app.users:
-#         del app.users[session['username']]
-#     leave_room(session['game'])
+@socketio.on('disconnect', namespace='/game_data') #maaybe delet
+def handle_disconnect():
+    if 'username' in session and session['username'] in app.users:
+        del app.users[session['username']]
+    print(str(rooms()) + ' disconnected')
 
 @socketio.on('client_to_server_move', namespace='/game_data')
 def received_move(move):
-    print('moved')
-    # if not is_valid_user():
-    #     disconnect()
-    #     return
-    if session['game'] in app.undoLog:
-        undo_tell('no')
-    emit('server_to_client_move', move, room = session['game'])
+    # if session['game'] in app.undoLog:
+    #     undo_tell('no')
+    emit('server_to_client_move', move, room = session['game'], namespace = '/game_data')
     db.rpush(session['game'], str(move))
 
 @socketio.on('picking_piece', namespace='/game_data')
@@ -130,38 +118,50 @@ def picking_piece(stuff):
 @socketio.on('picked_piece', namespace='/game_data')
 def picked_piece(piece):
     print('picked_piece')
-    move = ast.literal_eval(db.rpop(session['game']))
+    move = ast.literal_eval(db.rpop(session['game']).decode("utf-8"))
     move['info'] = piece;
     db.rpush(session['game'], str(move))
     emit('picked_piece', piece, room = session['game'])
 
-# @socketio.on('undo_ask', namespace='/game_data')
-# def undo_ask(stuff):
-#     if not is_valid_user():
-#         disconnect()
-#         return
-#     emit('undo_ask', session['username'], room = session['game'])
-#     app.undoLog[session['game']] = set([session['username']])
+@socketio.on('undo_ask', namespace='/game_data')
+def undo_ask(stuff):
+    print(session['username'] + ' asks for undo')
+    emit('undo_ask_from_server', session['username'], room = session['game'], namespace='/game_data')
+    # app.undoLog[session['game']] = set([session['username']])
+    app.undoLog[session['game']] = set([]) ##starts as empty set. user who triggers undo has to confirm
+    print(session['username'] + ' end asking undo')
 
-# @socketio.on('undo_answer', namespace='/game_data')
-# def undo_answer(ans):
-#     if not is_valid_user():
-#         disconnect()
-#         return
 
-#     if ans == 'no':
-#         undo_tell('no')
+@socketio.on('undo_answer', namespace='/game_data')
+def undo_answer(ans):
+    print(session['username'] + ' undo response')
+    if ans == 'no':
+        undo_tell('no')
 
-#     c = len(filter(lambda user: user['game'] == session['game'], app.users.values()))
-#     if session['game'] in app.undoLog:
-#         app.undoLog[session['game']].add(session['username'])
-#         if len(app.undoLog[session['game']]) == c:
-#             undo_tell('yes')
+    # c = len(list(filter(lambda user: user['game'] == session['game'], app.users.values())))
+    if session['game'] in app.undoLog:
+        print(session['username'] + ' hereA')
+        app.undoLog[session['game']].add(session['username'])
+        # if len(app.undoLog[session['game']]) <= c:
+            # print("eeOOOOOOOOOOOOOOOOO\n\n\n\n\n\n\n")
+            # undo_tell('yes')
+        print(list(filter(lambda name: app.users[name]['game'] == session['game'], app.users)))
+        for x in filter(lambda name: app.users[name]['game'] == session['game'], app.users):
+            print(session['username'] + ' hereB')
+            if x not in app.undoLog[session['game']]:
+                print(session['username'] + ' hereC')
+                return
+        print(session['username'] + ' hereD')
+        undo_tell('yes')
 
-# def undo_tell(ans):
-#     emit('undo_answer', ans, room = session['game'])
-#     del app.undoLog[session['game']]
-#     db.rpop(session['game'])
+def undo_tell(ans):
+    print('before undotell ' + ans + ' :  ' + str(app.users.keys()))
+    emit('undo_answer_from_server', ans, room = session['game'], namespace='/game_data')
+    print(session['username'] + ' hereE')
+    del app.undoLog[session['game']]
+    db.rpop(session['game'])
+    print('after undotell: ' + str(app.users.keys()))
+
 
 if __name__ == '__main__':
-    socketio.run(app)
+    socketio.run(app, debug=True)
