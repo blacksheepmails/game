@@ -95,6 +95,8 @@ ChessPlayer.prototype.canMove = function(game) {
     }
 }
 ChessPlayer.prototype.isValidMove = function(piece, i, j, game) {
+        console.log(game.gamePieces[0].i);
+
     var old_i = piece.i;
     var old_j = piece.j;
     var effects = piece.getMove(i, j).sideEffects;
@@ -105,18 +107,20 @@ ChessPlayer.prototype.isValidMove = function(piece, i, j, game) {
             effects[c].go();
         }
     }
+
     piece.i = i;
     piece.j = j;
 
+    console.log(game.gamePieces[0].i);
+
     game.updatePossibleMoves();
 
-    var returnVal = !this.isInCheck()
+    var returnVal = !this.isInCheck();
     piece.i = old_i;
     piece.j = old_j;
     if (temp != null) this.gamePieces.push(temp);
 
     game.updatePossibleMoves();
-
     return returnVal;
 }
 ChessPlayer.prototype.updateCanCastle = function(activePiece) {
@@ -129,6 +133,7 @@ ChessPlayer.prototype.updateCanCastle = function(activePiece) {
     }
 }
 ChessPlayer.prototype.addCastleMoves = function() {
+    console.log('adding castle moves');
     if (this.isInCheck()) return;
         
     if (this.canCastleSquare2) {

@@ -317,6 +317,7 @@ var PieceNamespace = function(gamePieces, capturedPieces, drawing){
                     return true;
                 }
             }
+            console.log(i.toString() + ', ' + j.toString() + ' is not a valid move')
             return false;
         },
         extend: function(moves, inc) {

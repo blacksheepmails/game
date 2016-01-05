@@ -74,11 +74,14 @@ GameStateMachine.prototype = {
         if (this.activePiece != null) this.activePiece.calcPossibleMoves();
     },
     move: function(piece, square, msg) {
+        this.updatePossibleMoves();
         var move = piece.getMove(square.i, square.j);
         this.log.push({piece: piece, from: {i: piece.i, j: piece.j}, move: move, turn: this.whoseTurn});
         move.sideEffects.map(function(x) {x.go(msg)});
         piece.i = square.i;
         piece.j = square.j;
+            console.log(this.gamePieces);
+
         this.updatePossibleMoves();
     },
 
